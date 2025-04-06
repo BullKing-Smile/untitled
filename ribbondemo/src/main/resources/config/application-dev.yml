@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: ribbondemo
+
+  config:
+    import: nacos:coocpu.config.test
+
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+    loadbalancer:
+      enabled: true
+      configurations: round-robin # 默认模式， 无需指定
+
+server:
+  port: 8091
+
+feign:
+  sentinel:
+    enabled: true
+

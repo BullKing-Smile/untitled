@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: coupon-server
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: localhost:8848
+        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+        group: DEFAULT_GROUP
+server:
+  port: 8082
+logging:
+  level:
+    web: debug
+    root: debug
+    sql: info

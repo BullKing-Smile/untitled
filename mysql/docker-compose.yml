@@ -1,0 +1,29 @@
+services:
+  mysql1:
+    image: mysql:latest
+    hostname: mysql1
+    container_name: mysql1
+    restart: always
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydb              # 自动创建的数据库
+      MYSQL_USER: mysql                  # 自动创建的用户
+      MYSQL_PASSWORD: password          # 自动创建用户的密码
+      TZ: Asia/Dubai                 # 时区设置
+    volumes:
+      - ./data/mysql:/var/lib/mysql  # 数据持久化
+      - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf  # 自定义配置
+    networks:
+      - my-network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+networks:
+  my-network:
+    driver: bridge
+#    external: true

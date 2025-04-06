@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: order-server-dev
+  cloud:
+    nacos:
+      server-addr: 127.0.0.1:8848
+      username: nacos
+      password: nacos
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+        enabled: true
+        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+        group: DEFAULT_GROUP
+#        refreshable-dataids: coocpu.config.test
+        refresh-enabled: true
+        enable-remote-sync-config: true
+        config-long-poll-timeout: 30000
+        config-retry-time: 3000
+        encrypt-enabled: false
+#      discovery:
+#        server-addr: 127.0.0.1:8848
+#        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+
+#        prefix: ${spring.application.name}
+#user:
+#  name: local-user
+#  age: 1
+#password: 1

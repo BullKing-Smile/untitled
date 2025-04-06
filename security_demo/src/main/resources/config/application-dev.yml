@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: security_demo
+  security:
+    user:
+      name: wsf
+      password: password
+server:
+  port: 8071

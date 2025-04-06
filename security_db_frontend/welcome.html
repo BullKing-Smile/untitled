@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome guy..</title>
+    <script src="js/axios.js"></script>
+</head>
+<body>
+  欢迎使用 Demo!!!<br>
+  <a href="javascript:logout()">Logout</a><br><br>
+
+<a href="javascript:userInfo()">Query UserInfo</a><br><br>
+  <a href="javascript:createUser()">Create User</a><br><br>
+</body>
+
+<script type="text/javascript">
+    function logout() {
+        axios.get('http://localhost:8073/user/logout', {
+            headers: {
+                'access-token': window.localStorage.getItem("access-token")
+            }
+        })
+            .then(function (response) {
+                // 处理成功情况
+                console.log(response);
+                if (response.status === 200) {
+                    window.localStorage.removeItem("access-token")
+                    alert("Logout success~~~")
+                }
+            })
+            .catch(function (error) {
+                // 处理错误情况
+                console.log(error);
+            })
+            .finally(function () {
+                // 总是会执行
+            });
+    }
+
+    function userInfo() {
+        axios.get('http://localhost:8073/api/user/read',
+            {
+                headers: {
+                    'access-token': window.localStorage.getItem("access-token")
+                }
+            })
+            .then(function (response) {
+                // 处理成功情况
+                console.log(response);
+
+            })
+            .catch(function (error) {
+                // 处理错误情况
+                console.log(error);
+            })
+            .finally(function () {
+                // 总是会执行
+            });
+    }
+
+    function createUser() {
+        axios.get('http://localhost:8073/api/user/create',
+            {
+                headers: {
+                    'access-token': window.localStorage.getItem("access-token")
+                }
+            })
+            .then(function (response) {
+                // 处理成功情况
+                console.log(response);
+
+            })
+            .catch(function (error) {
+                // 处理错误情况
+                console.log(error);
+            })
+            .finally(function () {
+                // 总是会执行
+            });
+    }
+</script>
+</html>

@@ -1,0 +1,16 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0  # 请使用合适的版本
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ELASTIC_PASSWORD=password  # 设置Elasticsearch超级用户的密码
+      - xpack.security.enabled=true       # 启用安全模块
+    ports:
+      - "9200:9200"                       # 映射9200端口
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+volumes:
+  esdata:
+    driver: local

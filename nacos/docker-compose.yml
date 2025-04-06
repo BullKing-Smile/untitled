@@ -1,0 +1,51 @@
+services:
+  nacos:
+    image: nacos/nacos-server:latest
+    container_name: nacos-server
+    environment:
+      - PREFER_HOST_MODE=hostname
+      - MODE=standalone  # 单机模式
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql  # MySQL 服务主机名，需与数据库服务名保持一致
+      - MYSQL_SERVICE_DB_NAME=nacos_config
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=password
+      - MYSQL_SERVICE_PORT=23306
+    volumes:
+      - ./standalone-logs/:/home/nacos/logs  # 日志存储
+      - ./conf/my.cnf/jdbc.properties:/home/nacos/conf/jdbc.properties
+    ports:
+      - "18848:8848"
+    networks:
+      - my-network
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:latest
+    hostname: mysql
+    container_name: mysql
+    restart: always
+    ports:
+      - "23306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: mydb              # 自动创建的数据库
+      MYSQL_USER: mysql                  # 自动创建的用户
+      MYSQL_PASSWORD: password          # 自动创建用户的密码
+      TZ: Asia/Dubai                 # 时区设置
+    volumes:
+      - ./data/mysql:/var/lib/mysql  # 数据持久化
+      - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf  # 自定义配置
+    networks:
+      - my-network
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
+
+networks:
+  my-network:
+    driver: bridge
+#    external: true

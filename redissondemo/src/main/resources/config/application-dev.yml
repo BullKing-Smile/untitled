@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: redissondemo
+
+server:
+  port: 8085

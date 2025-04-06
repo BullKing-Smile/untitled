@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: shardingspheredemo
+
+  shardingsphere:
+    datasource:
+      names: ds  # ??????
+      ds:
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://localhost:13306/sharding_db?useSSL=false
+        username: root
+        password: password
+    rules:
+      sharding:
+        tables:
+          t_order:
+            actual-data-nodes: ds.t_leave_record_$->{0..9}  # ????? 10 ??
+            table-strategy:
+              standard:
+                sharding-column: id  # ???
+                sharding-algorithm-name: table-volume
+
+        sharding-algorithms:
+          table-volume:
+            type: CLASS_BASED
+            props:
+              strategy: STANDARD
+              algorithm-class-name: com.coocpu.shardingspheredemo.VolumeShardingAlgorithm
+
+    props:
+      sql-show: true

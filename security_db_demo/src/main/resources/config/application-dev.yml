@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: security_db_demo
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: password
+    username: root
+    url: jdbc:mysql://localhost:13306/db_security
+  jackson:
+    date-format: yyyy-MM-dd HH:mm
+    time-zone: GMT+8
+server:
+  port: 8072

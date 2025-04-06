@@ -1,0 +1,100 @@
+spring:
+  application:
+    name: gateway
+#  config:
+#    import: optional:nacos:order-server-dev.yaml
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: localhost:8848
+        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+        group: DEFAULT_GROUP
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: order-server
+          uri: lb://order-server
+          predicates:
+            - Path=/order-server/** # ???????????? eg: /order-server/{id}
+          #            - After=2020-01-01T17:10:00.777-09:00[Asia/Dubai] # ?????????
+          #            - Before=***
+          #            - Between=2020-01-01T17:10:00.777-09:00[Asia/Dubai],2020-02-01T17:10:00.777-09:00[Asia/Dubai]
+          #            - Cookie=chocolate, ch.p # ??Cookie
+          #            - Header=X-Request, \d+ # ??Header ???????
+          #            - Host=**.somehost.org, **.host.com
+          #            - Method=GET,POST
+          #            - Query=green # ????? ??????? green,aaa|bbb ????green???aaa,bbb??
+          #            - RemoteAddr=192.168.3.2 # ??ip??
+          #            - Weight=group1,2 # ??????
+          filters:
+            - StripPrefix=1
+        #            - AddRequestHeader=X-Request-Color, red # ?????
+        #            - AddRequestParameter=color, blue # ??????
+        #            - RediectTo=3.2, http://aaa.com # ???
+        #            - SetStatus=404 # ???????
+        - id: coupon-server
+#          uri: http://localhost:8082
+          uri: lb://coupon-server
+          predicates:
+            - Path=/coupon-server/**
+#            - Path=/coupon/**
+          filters:
+            - StripPrefix=1
+          metadata:
+#            load-balancer: round # 负载均衡-随机策略 random
+            group: DEFAULT_GROUP
+            weight: 80
+        - id: ribbondemo-route
+          uri: http://localhost:8091
+          predicates:
+            - Path=/ribbondemo-server/**
+          filters:
+            - StripPrefix=1
+
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "*"
+            allowed-methods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTION
+#      enabled: true
+
+#    sentinel:
+#      transport:
+#        dashboard: 127.0.0.1:8858
+#        port: 8097
+#        client-ip: localhost:8081
+#      enabled: true # 临时禁用
+#      eager: true
+#      filter:
+#        enabled: true
+#      scg:
+#        fallback:
+#          mode: response
+#          response-body: "{msg:'hahaha blocked111'}"
+
+    loadbalancer:
+#      configurations: random
+      cache:
+        enabled: true
+      nacos:
+        enabled: true
+
+#    compatibility-verifier:
+#      enabled: false
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.loadbalancer: DEBUG
+
+server:
+  port: 8088

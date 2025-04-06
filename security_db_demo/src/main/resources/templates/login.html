@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WSF Login Page</title>
+</head>
+<body>
+<form action="/user/login" method="post">
+    <p>
+        账号：<input type="text" name="username" placeholder="Name" required autofocus/>
+    </p>
+    <p>
+        密码：<input type="password" name="password" placeholder="Password" required/>
+    </p>
+    <p>
+        验证码：<input type="text" name="captcha" placeholder="Captcha Code" required/><img src="/common/captcha">
+    </p>
+    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

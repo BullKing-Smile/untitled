@@ -1,0 +1,14 @@
+services:
+  mongo:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mongodb  # 设置管理员用户名
+      MONGO_INITDB_ROOT_PASSWORD: password  # 设置管理员密码
+    volumes:
+      - mongo_data:/data/mongodb
+
+volumes:
+  mongo_data:

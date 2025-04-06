@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: order-server
+  config:
+    import: nacos:order-server-dev.yaml
+
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        server-addr: localhost:8848
+        namespace: cfc3c5d1-66ad-48d9-84a7-8195218a76cb
+        group: DEFAULT_GROUP
+#      config:
+#        server-addr: 127.0.0.1:8848
+#        import-check:
+#          enabled: false
+
+
+server:
+  port: 8081
+
+logging:
+  level:
+    org:
+      springframework: DEBUG
+    com:
+      alibaba:
+        nacos: DEBUG
+
+feign:
+  sentinel:
+    enabled: true
+
+#
+#user:
+#  name: local-user
+#  age: 1
+#password: 1

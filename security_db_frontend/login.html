@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="js/axios.js"></script>
+<!--    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>-->
+    <title>WSF Login Page</title>
+</head>
+
+<body>
+<form >
+    <p>
+        账号：<input type="text" name="username" id="username" placeholder="Name" required autofocus/>
+    </p>
+    <p>
+        密码：<input type="password" name="password" id="password" placeholder="Password" required/>
+    </p>
+    <input type="button" onclick="login()" value="OK"/>
+</form>
+</body>
+
+<script type="text/javascript">
+    function login() {
+        let u = document.getElementById("username").value
+        let p = document.getElementById("password").value
+
+        let formData = new FormData();
+        formData.append("username", u);
+        formData.append("password", p);
+
+        axios.post('http://localhost:8073/user/login', formData)
+            .then(function (response) {
+                console.log(response);
+                // 拿到结果 页面跳转
+                if (response.status === 200) {
+                    // 仅在当前tab页面有效
+                    // window.sessionStorage.setItem("access-token", response.data.token)
+                    // 整个浏览器 有效， 即使是重启浏览器
+                    window.localStorage.setItem("access-token", response.data.token)
+                    window.location.href = "welcome.html"
+                } else {
+                    alert("登录失败："+ response.body.msg)
+                }
+            })
+            .catch(function (error) {
+                console.log(error);
+                alert("登录失败2："+error)
+            })
+    }
+</script>
+</html>

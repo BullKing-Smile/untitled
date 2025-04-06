@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: jpademo
+  datasource:
+    url: jdbc:mysql://localhost:13306/jpadb?useSSL=false&serverTimezone=UTC
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        format_sql: true
+        jdbc:
+          batch_versioned_data: true
+          batch_size: 50
+        order_updates: true
+        order_insert: true
