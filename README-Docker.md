@@ -1,6 +1,35 @@
 # Docker
 > Docker是一个开源的容器引擎，它有助于更快地交付应用。
 
+Iaas: Infrastructure as a Service, 基础设施即服务
+- 阿里云/腾讯云/亚马逊云
+  PaaS: Platform as a Service, 平台即服务
+- mysql,nginx,rocketmq,mongodb,redis
+  SaaS: Software as a Service, 软件即服务
+  oa
+  Docker 就是基于PaaS产生的一个容器技术
+
+## 定义
+> Docker 是一种虚拟化容器技术<br>
+> 通过虚拟化技术，可以对物理机的资源进行有效的利用。<br>
+> 软件虚拟化/硬件虚拟化/内存虚拟化/网络虚拟化/桌面虚拟化/服务虚拟化。。。
+
+
+### 核心概念
+- Image
+- Container
+- Registry(仓库注册中心)
+- Repository(仓库)
+  <img src="./static/docker_001.png"/>
+
+> 一个Registry中会有多个Repository
+> 一个Repository中会哟多个tag的Image
+
+### Installation(CentOS)
+- yum -y remove docker // uninstall the old version
+- yum install -y docker // install new version
+- systemctl start docker // start docker
+- systemctl start docker.service // start docker
 
 ## Docker的优点
 - 简化程序 --- 的应用以及依赖包到一个可移植的容器中，然后发布到任何流
@@ -37,11 +66,31 @@
 
 - docker pull [image_name]:[version]  --- 下载镜像
 > docker pull java:8
+- docker pull <image name>:<tag> // 拉取远端镜像 eg: docker pull centos:7
 
 - docker images --- 列出镜像(downloaded)
 
+### 删除镜像
+- docker rmi <image name>:<tag> // 删除镜像, 不加tag默认latest version eg: docker rmi redis
+- docker rmi <imageID> // 删除镜像 by ID 该镜像的所有版本
+- docker rmi $(docker images -q) // 删除所有镜像
 - docker rmi [image_name] --- 删除本地镜像
 > docker rmi java
+
+
+### 容器操作命令
+- docker run -i -t --name [container name] repository:tag /bin/bash
+- docker run -it --name [container name] imageID /bin/bash
+
+以守护进程 运行容器
+- docker run -d --name [container name] repository:tag
+- docker run -d --name [container name] imageID
+
+### 启动容器
+- docker run <container Name/ID> // 创建并启动容器
+- docker start <container Name/ID> //启动容器
+> eg
+> sudo docker run -di --name my_redis -p 6379:6379 redis
 
 - docker run --- 新建启动容器
 > - -d --- 后台运行
@@ -51,6 +100,11 @@
 
 eg:
 > docker run -d -p 91:80 nginx
+
+### 容器查看
+- docker ps // 查看正在运行的容器
+- docker ps -a // 查看历史 运行过的容器
+- docker ps -l // 查看最近 运行过的容器
 
 - docker ps --- 列出容器(运行)
 - docker ps -a --- 列出终止状态的容器
@@ -68,8 +122,21 @@ eg:
 
 - docker top [container_id] --- 查看容器里的进程
 
+### 进入容器(运行状态的容器)
+- docker exec -it <container name/id> /bin/bash // 推荐方式
+- docker attach <container name/id> // 退出 容器则停止
 - docker exec -it [container_id] /bin/bash 进入容器
+  命令解释
+- -i // 表示运行容器
+- -t // 表示 容器启动后会进入其命令行
+- --name // 为创建的容器 命名
+- -v // 目录映射关系 (前者是 宿主机目录 后者是 映射到宿主机上的目录)， 可以做多映射
+- -d // 创建一个守护式容器 在后台运行
+- -p // 端口映射 前者是 宿主机端口， 后者是 容器内映射端口， 可以做多端口映射
 
+
+### 删除容器
+- docker rm
 - docker rm [container_id] --- 删除容器(针对已停止)
 - docker rm -f [container_id] --- 强制删除容器(包括在运行的)
 - docker rmi [iamge_name] --- 删除镜像
@@ -87,6 +154,9 @@ eg:
 - docker push [repository]
 > eg: docker push ouruser/sinatra
 
+### 保存 导出
+- docker save repository:tag/imageID > /root/xx.tar.gz // 导出镜像
+- docker load < /root/xx.tar.gz //导入镜像
 - docker load --input [image_file] --- 将下载的镜像文件 导入到本地镜像仓库
 - docker load < [image_file] --- 同上
 
@@ -97,6 +167,28 @@ eg:
 
 - 启动创建的容器
 - docker run -d -p 8083:8083 --net=host microservice-coupon:1.0.0
+
+
+### 文件复制
+- docker cp /root/xxx.txt [continer name]:/user/local/
+> eg: docker ps /usr/local/test.txt my_centos:/user/local/<br>
+> docker cp 宿主机文件 容器名称:容器内路径<br>
+
+### 查看容器配置
+- docker inspect <container name>
+
+
+### 从其他注册中心拉取镜像
+- 第一步修改配置文件
+> vi /etc/docker/daemon.json // 默认没有这个文件，创建即可
+```shell
+{
+  "registry-mirrors":["https://docker.mirrors.ustc.edu.cn"]
+}
+```
+- 第二步 重启服务
+> systemctl restart docker/docker.service
+>
 
 
 ### 镜像 常用命令
