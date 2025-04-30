@@ -13,6 +13,19 @@
 - Hash表
 - B-tree
 
+
+### 创建索引
+> create index index_name on table_name(column name)<br>
+> alter table table_name add index index_name(column_name)<br>
+> alter table table_name add unique index index_name(column_name)<br>
+### 查看索引
+> show index from table_name \G; // 再命令行 格式化输出索引情况<br>
+
+### 删除索引
+> drop index index_name on table_name<br>
+> alter table table_name drop index index_name<br>
+>
+
 ### 索引的基本原理
 > <font color=orange><b>把无序的数据 变成 有序的查询</b></font>
 > - 把创建了索引的列的内容进行排序
@@ -95,6 +108,13 @@ like %xxx% 不走索引， like xxx% 才走索引。
 - 隔离性(Isolation): 在事务并发执行时，他们内部的操作不能相互干扰。
 - 持久性(Durability): 一旦提交了事务，他对数据库的改变就是永久性的，持久性由redo log日志来保证。
 
+### 事务
+> begin;
+> update table;
+> rollback; // if error occurred
+> commit; // 提交事务
+
+
 ### MySQL 有哪些锁
 
 - 行锁 ---- InnoDB 默认使用的锁类型
@@ -102,6 +122,18 @@ like %xxx% 不走索引， like xxx% 才走索引。
 > - 读锁=共享锁 多个事务可以共享一把锁。 select xxxxx lock in share mode
 > - 写锁=排他锁 只有一个事务能够获得锁。InnoDB会对insert/update/delete语句自动加锁
 > - 自增锁， 通常针对 自增字段， 对于事务回滚的情况， 数据会回滚 但是自增序列 不会回滚
+
+#### READ LOCK 读锁
+> 可以并发读， 不能写。<br>
+> lock table table_name read; // 给表添加读锁,<br>
+> 读锁期间， 没有释放锁之前不能进行写操作。<br>
+> unlock tables;<br>
+
+#### WRITE LOCK 写锁
+> 只有缩表的用户 才可以进行 读写操作 其他用户不行(并发下对商品库存的操作)
+> lock table table_name write;
+> unlock tables;
+
 
 - 表锁
 >
@@ -218,6 +250,8 @@ Save/Update data--> 到达InnoDB存储引擎-->Buffer Pool缓存池-->写入Redo
 > - type 索引类型
 > - key 使用的 索引 名字
 > - key_len 命中的索引 数量
+
+> desc <sql>; // 解释执行SQL
 
 ### 脏读/幻读/不可重复读
 这些问题都是MySQL进行事务并发控制 遇到的问题
