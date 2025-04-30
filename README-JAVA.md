@@ -321,5 +321,30 @@ Saga协调器
 
 
 
+### sleep() wait()的区别
+- sleep() 属于Thread类中static方法， wait()属于Object类的方法
+- sleep() 属于TIMED_WAITING, 自动被唤醒， wait() 属于WAITING 需要手动唤醒
+- sleep()在持有锁时执行，不会释放锁资源，wait()在执行后 会释放锁资源
+- sleep() 可以在持有锁或者不持有锁时执行。 wait() 方法<font color=yellow>***必须在 持有锁时才能执行***</font>。
+
+<font color=orange>***wait()方法会将持有锁的线程从owner扔到 WaitSet 集合中，这个操作是在修改ObjectMonitor对象，如果没有持有Synchronized锁的话，是无法操作ObjectMonitor对象的。***</font>
+
+
+### 内存泄漏
+有些对象已经不再被使用，但由于某些原因，这些对象无法被垃圾回收器（GC）回收，导致内存被持续占用，最终可能引发内存溢出错误（OOM）。
+
+内存泄漏的场景：
+- 静态集合 中的对象 add/remove， 解决： 使用弱引用集合（如WeakHashMap）或定期清理无用条目
+- 监听器 和 回调函数 register/unregister 解决：显式注销监听器
+- 内部类 持有 外部类的引用。 解决：静态内部类+WeakReference
+- 资源未关闭，比如数据库连接、文件流、网络连接等 解决：使用try-with-resources自动关闭资源
+- 单例模式设计不当的情况， 单例生命周期较长，如果持有了其他对象的引用而没有被释放
+- 使用ThreadLocal时处理不当，线程的复用 在线程池中 存活时间较长，ThreadLocal的值如果没有被remove，
+
+
+### volatile
+工作内存 缓存区 共享副本的方式 JVM控制副本数据 与 主内存数据的同步， 保证了 资源的及时 可见
+- 可见性 --- 多线程 共享资源的可见性 
+- 有序性 --- 防止指令重排， 懒汉式 单例模式中，双重检查锁 中的 代码块可能存在指令重排
 
 

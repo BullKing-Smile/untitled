@@ -173,3 +173,18 @@ ZGC 缺点
 堆外内存管理
 - 解决方案：
 > 使用 -XX:+ExplicitGCInvokesConcurrent（仅限某些 GC 如 CMS、G1），让显式 GC 触发并发回收而非 Full GC。
+
+
+
+### Java 命令介绍
+jps --- Java Processor 
+jinfo --- java info, eg: jinfo 1760, 1760是进程id
+jstat --- 统计信息， eg: jstat -gc 1180
+jstat -gc 动态观察gc 情况
+jstack --- 跟踪线程信息， eg: jstack 11880 | more, 列出进程中所有的线程调用栈信息
+
+
+jmap -histo 11990 | head -20 --- 查找有多少对象chan'sheng
+
+java -Xms20M -Xmx20M -XX:+UseParallelGC -XX:+HeapDumpOnOutOfMemoryError
+设置内存溢出是生成dump文件 输出到指定位置， 用于内存分析
