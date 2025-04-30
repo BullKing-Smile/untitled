@@ -170,7 +170,7 @@ public class CompleteFutureAcceptToEitherMain {
 ### get() 与 join() 的区别
 > 两者都是 <b>以阻塞的方式</b>获取异步任务结果的方法<br>
 - get()会 抛出 编译时异常， 必须处理<br>
-- join() 只会有运行时异常， 可以不处理， 因此 更适合流式编程方式<br>
+- <font color=yellow>join() 只会有运行时异常， 可以不处理， 因此 更适合流式编程方式</font><br>
 
 
 
