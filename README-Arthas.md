@@ -34,7 +34,7 @@ thread -n [thread id] --- 哪些线程比较占cpu？他们到底在做什么？
 thread -b 查看blocked 信息
 
 
-### jad
+### jad --- 在线反编译， 查看源代码
 对类进行反编译:
 $ jad javax.servlet.Servlet
 
@@ -85,7 +85,8 @@ Press Ctrl+C to abort
 当前系统中有多少类加载器，以及每个加载器加载的类数量，帮助您判断是否有类加载器泄露。
 classloader
 
-
+### redefine --- 重新加载class
+在线修改 执行新版本的代码
 
 
 
