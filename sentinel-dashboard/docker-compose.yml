@@ -1,0 +1,13 @@
+services:
+  sentinel-dashboard:
+    image: bladex/sentinel-dashboard:1.8.8
+    container_name: sentinel-dashboard
+    ports:
+      - "8070:8858"  # 宿主机端口:容器端口
+    environment:
+      - JAVA_OPTS=-Dserver.port=8070 -Dcsp.sentinel.dashboard.server=localhost:8070
+      - SENTINEL_DASHBOARD_AUTH_USERNAME=sentinel  # 自定义用户名（可选） sentinel 默认
+      - SENTINEL_DASHBOARD_AUTH_PASSWORD=mypassword  # 自定义密码（可选） sentinel 默认
+    volumes:
+      - ./sentinel/logs:/root/logs/csp  # 持久化日志（可选）
+    restart: unless-stopped  # 自动重启

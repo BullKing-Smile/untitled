@@ -1,0 +1,48 @@
+services:
+  hippo4j-server:
+    image: hippo4j/hippo4j-server:latest
+    container_name: hippo4j-server
+    ports:
+      - "8011:6691"
+    environment:
+      - DATASOURCE_MODE=mysql
+      - DATASOURCE_HOST=172.18.0.2
+      - DATASOURCE_PORT=13306
+      - DATASOURCE_DB=hippo4j_manager
+      - DATASOURCE_USERNAME=root
+      - DATASOURCE_PASSWORD=password
+
+#    volumes:
+#      - ./data:/data
+#    depends_on:
+#      - hippo4j-db
+#    networks:
+#      - hippo4j_net
+#  
+#  hippo4j-db:
+#    image: mysql:latest
+#    hostname: mysql-hippo4j
+#    container_name: mysql-hippo4j
+#    restart: always
+#    ports:
+#      - "13307:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: password
+#      MYSQL_DATABASE: mydb              # 自动创建的数据库
+#      MYSQL_USER: mysql                  # 自动创建的用户
+#      MYSQL_PASSWORD: password          # 自动创建用户的密码
+#      TZ: Asia/Shanghai                 # 时区设置
+#    volumes:
+#      - ./mysql/data/mysql:/var/lib/mysql  # 数据持久化
+#      - ./mysql/conf/my.cnf:/etc/mysql/conf.d/my.cnf  # 自定义配置
+#    networks:
+#      - hippo4j_net
+#    healthcheck:
+#      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+#      interval: 5s
+#      timeout: 3s
+#      retries: 5
+
+#networks:
+#  hippo4j_net:
+#    driver: bridge

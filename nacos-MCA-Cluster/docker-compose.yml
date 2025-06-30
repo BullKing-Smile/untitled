@@ -1,0 +1,126 @@
+services:
+  nacos1:
+    image: nacos/nacos-server:v3.0.0
+    container_name: nacos-server1
+    environment:
+      - MODE=cluster
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos_config
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root123
+#      - NACOS_SERVERS=nacos-server1:8851 nacos-server2:8852 nacos-server3:8853
+#      - NACOS_SERVERS=192.168.3.27:8851 192.168.3.27:8852 192.168.3.27:8853
+      - NACOS_SERVERS=172.22.0.3:8848 172.22.0.4:8848 172.22.0.5:8848
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_TOKEN=31qzRfURIyebCm5GPqL55vSv07Rx5JtGfbspEn8dbQQ= # 自定义Token（生产环境需修改）
+      - NACOS_AUTH_IDENTITY_KEY=nacos20250619key  # 自定义Identity Key
+      - NACOS_AUTH_IDENTITY_VALUE=58ca3282f927528d380aa0aac8f70f8d
+#      - NACOS_SERVER_IP=192.168.3.27
+#      - NACOS_APPLICATION_PORT=8851
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true # MySQL 8 必须添加的参数
+    volumes:
+      - ./nacos/cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8041:8080"
+      - "8851:8848"  # Nacos控制台端口
+      - "9861:9848"  # Nacos 2.0+ gRPC端口（必须开放）
+    depends_on:
+      - mysql
+    networks:
+      - nacos_network
+
+  # Nacos 节点 2
+  nacos2:
+    image: nacos/nacos-server:v3.0.0
+    container_name: nacos-server2
+    environment:
+      - MODE=cluster
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos_config
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root123
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_TOKEN=31qzRfURIyebCm5GPqL55vSv07Rx5JtGfbspEn8dbQQ= # 自定义Token（生产环境需修改）
+      - NACOS_AUTH_IDENTITY_KEY=nacos20250619key  # 自定义Identity Key
+      - NACOS_AUTH_IDENTITY_VALUE=58ca3282f927528d380aa0aac8f70f8d
+#      - NACOS_SERVERS=nacos-server1:8851 nacos-server2:8852 nacos-server3:8853
+#      - NACOS_SERVERS=192.168.3.27:8851 192.168.3.27:8852 192.168.3.27:8853
+      - NACOS_SERVERS=172.22.0.3:8848 172.22.0.4:8848 172.22.0.5:8848
+#      - NACOS_SERVER_IP=192.168.3.27
+#      - NACOS_APPLICATION_PORT=8852
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true # MySQL 8 必须添加的参数
+    volumes:
+      - ./nacos/cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8042:8080"
+      - "8852:8848"  # Nacos控制台端口
+      - "9862:9848"  # Nacos 2.0+ gRPC端口（必须开放）
+    networks:
+      - nacos_network
+#      nacos_network:
+#        ipv4_address: 172.22.0.4
+    depends_on:
+      - mysql
+
+  # Nacos 节点 3
+  nacos3:
+    image: nacos/nacos-server:v3.0.0
+    container_name: nacos-server3
+    environment:
+      - MODE=cluster
+      - SPRING_DATASOURCE_PLATFORM=mysql
+      - MYSQL_SERVICE_HOST=mysql
+      - MYSQL_SERVICE_DB_NAME=nacos_config
+      - MYSQL_SERVICE_USER=root
+      - MYSQL_SERVICE_PASSWORD=root123
+#      - NACOS_SERVERS=nacos-server1:8851 nacos-server2:8852 nacos-server3:8853
+#      - NACOS_SERVERS=192.168.3.27:8851 192.168.3.27:8852 192.168.3.27:8853
+      - NACOS_SERVERS=172.22.0.3:8848 172.22.0.4:8848 172.22.0.5:8848
+      - NACOS_AUTH_ENABLE=true
+      - NACOS_AUTH_TOKEN=31qzRfURIyebCm5GPqL55vSv07Rx5JtGfbspEn8dbQQ= # 自定义Token（生产环境需修改）
+      - NACOS_AUTH_IDENTITY_KEY=nacos20250619key  # 自定义Identity Key
+      - NACOS_AUTH_IDENTITY_VALUE=58ca3282f927528d380aa0aac8f70f8d
+#      - NACOS_SERVER_IP=192.168.3.27
+#      - NACOS_APPLICATION_PORT=8853
+      - MYSQL_SERVICE_DB_PARAM=characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true # MySQL 8 必须添加的参数
+    volumes:
+      - ./nacos/cluster.conf:/home/nacos/conf/cluster.conf
+    ports:
+      - "8043:8080"
+      - "8853:8848"  # Nacos控制台端口
+      - "9863:9848"  # Nacos 2.0+ gRPC端口（必须开放）
+    networks:
+      - nacos_network
+#      nacos_network:
+#        ipv4_address: 172.22.0.5
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    container_name: nacos-mysql-cluster
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: nacos_config
+      MYSQL_USER: nacos
+      MYSQL_PASSWORD: Myp_ssw0rd
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化Nacos表结构
+    ports:
+      - "3301:3306"
+    networks:
+      - nacos_network
+
+volumes:
+  mysql_data:
+
+networks:
+  nacos_network:
+    driver: bridge

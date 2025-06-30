@@ -1,0 +1,45 @@
+
+
+services:
+  seata-server:
+    image: seataio/seata-server:2.0.0
+    container_name: seata-server
+    hostname: seata-server
+    ports:
+      - "8091:8091"  # 控制台端口
+      - "7091:7091"  # RPC端口
+    environment:
+      - SEATA_IP=127.0.0.1  # 改为你的服务器IP
+      - SEATA_PORT=8091
+      - STORE_MODE=db  # 存储模式
+      # DB配置（需提前创建seata数据库）
+      - SEATA_CONFIG_STORE_DB_URL=jdbc:mysql://mysql:23306/seata?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SEATA_CONFIG_STORE_DB_USER=root
+      - SEATA_CONFIG_STORE_DB_PASSWORD=mypassword
+    volumes:
+      - ./seata/conf:/seata-server/resources
+      - ./seata/scripts:/docker-entrypoint-initdb.d  # 初始化脚本
+    depends_on:
+      - mysql
+    networks:
+      - seata_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: seata
+      MYSQL_USER: seata
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "23306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d  # 初始化SQL放这里
+    networks:
+      - seata_network
+
+networks:
+  seata_network:
+    driver: bridge

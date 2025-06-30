@@ -1,0 +1,21 @@
+services:
+  nginx:
+    image: nginx:1.28.0
+    container_name: nginx
+    ports:
+      - "80:80"          # 映射主机 80 端口到容器 80 端口
+      - "443:443"        # 如需 HTTPS 可启用
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf          # 挂载自定义配置文件
+      - ./conf.d:/etc/nginx/conf.d                  # 挂载自定义 server 配置
+      - ./html:/usr/share/nginx/html                # 挂载静态文件目录
+      - ./logs:/var/log/nginx                       # 持久化日志
+    environment:
+      - NGINX_DISABLE_IPV6=1  # 禁用 IPv6 检测
+    restart: unless-stopped                         # 容器退出时自动重启
+    networks:
+      - nginx_network
+
+networks:
+  nginx_network:
+    driver: bridge

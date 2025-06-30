@@ -56,3 +56,5 @@ redis/data/
 /redis_single/data/
 /nginx/logs/
 /es-MAC/esdata/
+/hippo4j-server/mysql/data/
+/hippo4j-server/data/

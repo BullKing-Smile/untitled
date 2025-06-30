@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: seata-server-file
+seata:
+  config:
+    type: nacos
+    nacos:
+      server-addr: localhost:8848
+#      group: SEATA_GROUP
+#      namespace: seata-server
+#      cluster: default
+      username: nacos
+      password: nacos
+
+server:
+  port: 7091
+  recovery:
+    committing-retry-period: 1000
+    asyn-committing-retry-period: 1000
+    rollbacking-retry-period: 1000
+    timeout-retry-period: 1000
+
+logging:
+  file:
+    path: ./seata/logs
+    name: seata.log
+
+console:
+  username: seata
+  password: seata
+
+
+#
+#seata:
+#  store:
+#    mode: db
+#    db:
+#      datasource: druid
+#      db-type: mysql
+#      url: jdbc:mysql://mysql:23306/seata?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+#      user: root
+#      password: mypassword
+#      min-conn: 5
+#      max-conn: 30
+#  server:
+#    service-port: 7091

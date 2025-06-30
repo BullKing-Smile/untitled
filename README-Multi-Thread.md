@@ -1,5 +1,10 @@
 # Multi-Thread
 
+## 线程的启动方式
+- 继承 Thread 类
+- 实现 Runnable 接口
+- 实现 Callable 接口
+
 ## CompletableFuture
 优势
 - 快速创建/链式依赖/组合多个Future 提供大量便利

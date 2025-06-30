@@ -1,7 +1,8 @@
 services:
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0  # 请使用合适的版本
-    container_name: elasticsearch
+  elasticsearch-single:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.0  # 请使用合适的版本
+    image: elasticsearch:8.18.0
+    container_name: elasticsearch-single
     environment:
       - discovery.type=single-node
       - ELASTIC_PASSWORD=password  # 设置Elasticsearch超级用户的密码

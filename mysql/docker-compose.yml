@@ -11,7 +11,7 @@ services:
       MYSQL_DATABASE: mydb              # 自动创建的数据库
       MYSQL_USER: mysql                  # 自动创建的用户
       MYSQL_PASSWORD: password          # 自动创建用户的密码
-      TZ: Asia/Dubai                 # 时区设置
+      TZ: Asia/Shanghai                 # 时区设置 Asia/Dubai
     volumes:
       - ./data/mysql:/var/lib/mysql  # 数据持久化
       - ./conf/my.cnf:/etc/mysql/conf.d/my.cnf  # 自定义配置

@@ -35,6 +35,7 @@ spring.cloud.nacos.discovery.ephemeral: true or false
 
 
 
+
 ### 集群模式
 
 
@@ -49,6 +50,86 @@ Nacos提供用于存储配置和其他元数据的key-value格式数据存储，
 com.project.service.itemname
 
 配置后缀默认时properties
+
+
+### Nacos + SpringBoot3.2.4(3.x)
+1. 添加依赖
+```xml
+<dependency>
+    <groupId>com.alibaba.cloud</groupId>
+    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+    <version>2022.0.0.0</version>
+</dependency>
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-bootstrap</artifactId>
+</dependency>
+<!-- 核心模块之一，主要用于 应用监控和管理 -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+解释说明：
+- Nacos Config 配合 actuator 主要是为了实现 配置动态刷新（@RefreshScope 机制）
+- **支持 @RefreshScope 注解，动态说新机制，底层依赖的是 actuator 的刷新机制**
+- 如果没有 actuator，@RefreshScope 不会生效，配置变更后无法更新
+
+2. 开放 refresh 端点（application.yml）
+```yaml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh,health,info  # 开放 refresh 端点
+```
+
+3. nacos-config 配置（bootstrap.yml）
+```yaml
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        group: DEFAULT_GROUP
+        namespace: edb19551-4867-4896-b68e-bb2cffad85fc
+      config:
+        server-addr: 127.0.0.1:8848
+        username: nacos
+        password: nacos
+        group: DEFAULT_GROUP
+        namespace: edb19551-4867-4896-b68e-bb2cffad85fc
+        file-extension: yaml
+        refresh-enabled: true
+        shared-configs:
+          - data-id: api-boss-dev.yaml
+            group: DEFAULT_GROUP
+            refresh: true
+  config:
+    import: optional:nacos
+  profiles:
+    active: dev
+  application:
+    name: api-boss
+```
+
+4. 使用示例
+```java
+@RestController
+@RefreshScope
+public class TestController {
+
+    @Value("${testConfig}")
+    private String testConfig;
+    
+    @GetMapping("/test")
+    public String save() {
+        return "test-" + testConfig + "-" + System.currentTimeMillis();
+    }
+}
+```
 
 ### Bean中 动态感知配置更新
 > @RefreshScope

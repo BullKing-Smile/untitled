@@ -1,0 +1,52 @@
+services:
+  nacos:
+    image: nacos/nacos-server:v3.0.0
+    container_name: nacos-server
+    environment:
+      MODE: standalone  # 单机模式
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: root123
+      MYSQL_SERVICE_DB_NAME: nacos_config
+      NACOS_AUTH_ENABLE: true  # 开启鉴权
+      NACOS_AUTH_TOKEN: 31qzRfURIyebCm5GPqL55vSv07Rx5JtGfbspEn8dbQQ= # 自定义Token（生产环境需修改）
+      NACOS_AUTH_IDENTITY_KEY: nacos20250619key  # 自定义Identity Key
+      NACOS_AUTH_IDENTITY_VALUE: 58ca3282f927528d380aa0aac8f70f8d
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true # MySQL 8 必须添加的参数
+    ports:
+      - "8080:8080"
+      - "8848:8848"  # Nacos控制台端口
+      - "9848:9848"  # Nacos 2.0+ gRPC端口（必须开放）
+    depends_on:
+      - mysql
+    networks:
+      - nacos_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: nacos-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: nacos_config
+      MYSQL_USER: nacos
+      MYSQL_PASSWORD: Myp_ssw0rd
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql  # 初始化Nacos表结构
+    ports:
+      - "3306:3306"
+    networks:
+      - nacos_network
+
+volumes:
+  mysql_data:
+
+networks:
+  nacos_network:
+    driver: bridge

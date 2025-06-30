@@ -1,0 +1,42 @@
+services:
+  seata-server:
+    image: seataio/seata-server:2.0.0
+    container_name: seata-server-db
+    hostname: seata-server
+    ports:
+      - "18091:8091"  # 控制台端口
+      - "17091:7091"  # 服务端口
+    environment:
+#      - SEATA_IP=127.0.0.1  # 替换为实际IP或主机名
+      - SEATA_PORT=18091
+#      - STORE_MODE=file  # 使用文件存储模式
+      - SEATA_CONFIG_NAME=file:/seata-server/resources/registry  # 配置文件路径
+    volumes:
+      - ./seata/conf:/seata-server/resources  # 配置文件目录
+#      - ./seata/data:/seata-server/sessionStore  # 会话数据持久化目录
+#    restart: unless-stopped
+    depends_on:
+      - mysql
+    networks:
+      - seata_network
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-seata
+    environment:
+      MYSQL_ROOT_PASSWORD: mypassword
+      MYSQL_DATABASE: seata
+      MYSQL_USER: seata
+      MYSQL_PASSWORD: mypassword
+    ports:
+      - "23306:3306"
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d  # 初始化SQL放这里
+    networks:
+      - seata_network
+
+
+networks:
+  seata_network:
+    driver: bridge

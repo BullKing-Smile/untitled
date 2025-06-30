@@ -119,6 +119,7 @@ eg:
 - docker inspect [container_id] --- 查看容器所有信息
 
 - docker container logs [container_id] --- 查看容器日志
+- docker logs -f [container_id|container_name] --- 查看实时日志
 
 - docker top [container_id] --- 查看容器里的进程
 
@@ -440,8 +441,15 @@ docker build -t myrepo/myapp /tmp/test1/
 
 
 
-### 启动服务
+启动服务
 docker-compose up -d ---- -d表示 run in background
+
+停止服务
+docker-compose down
+
+删除未被使用的volume卷
+docker system prune -f
+
 
 
 
