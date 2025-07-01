@@ -1332,8 +1332,62 @@ predicates
 Gateway 本身也是一个服务，他是所有服务的入口，因此可以拦截都所有的请求
 结合Sentinel 可以做统一流控熔断规则
 
+#### Gateway + 断路器
+断路器(Circuit Breaker)
+- 自动熔断：当失败率达到阈值时自动打开电路，停止请求
+- 半开状态：定期尝试放行部分请求检测服务是否恢复
+- 自动恢复：服务恢复后自动关闭断路器
+- 状态监控：提供 OPEN/HALF_OPEN/CLOSED 状态转换
 
+1. 添加依赖
+```xml
+<dependency>
+    <groupId>org.springframework.cloud</groupId>
+    <artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
+</dependency>
+```
 
+2. 编写断路器规则
+```codes 
+@Bean
+public ReactiveResilience4JCircuitBreakerFactory reactiveResilience4JCircuitBreakerFactory(){
+
+    CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom()
+            .slidingWindowType(CircuitBreakerConfig.SlidingWindowType.TIME_BASED)// 设置窗口类型为时间窗口
+            .slidingWindowSize(2) // 窗口大小2s
+            .minimumNumberOfCalls(5) // 最少的请求数 5次
+            .failureRateThreshold(80) // 失败阈值 40%
+            .enableAutomaticTransitionFromOpenToHalfOpen() // 运行开关自动从打开状态切换到半开状态
+            .waitDurationInOpenState(Duration.ofSeconds(1)) // 断路器从打开状态到半开状态的时长是10s
+            .permittedNumberOfCallsInHalfOpenState(5) // 在半开状态下，允许进行正常调用的次数
+            .recordExceptions(Throwable.class)
+            .build();
+
+    ReactiveResilience4JCircuitBreakerFactory factory = new ReactiveResilience4JCircuitBreakerFactory(
+            CircuitBreakerRegistry.of(circuitBreakerConfig),
+            TimeLimiterRegistry.of(TimeLimiterConfig.custom().timeoutDuration(Duration.ofMillis(600)).build())
+            );
+    return factory;
+} 
+```
+
+3. yaml文件指定断路器
+```yaml
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: api-boss
+          uri: lb://api-boss
+          predicates:
+            - Path=/api-boss/**
+          filters:
+#            - StripPrefix=1
+            # 使用断路器
+            - name: CircuitBreaker
+              args:
+                name: myCircuitBreaker
+```
 
 
 #### 网关灰度发布
@@ -1361,14 +1415,35 @@ A/B测试
 
 
 
+#### Https证书的生成和使用
+
+1. 第一步: 生成证书：
+> keytool -genkey -alias gateway -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore gateway.p12 -validity 3650 -keypass 123123 -storepass 123123
+
+keytool -genkey -alias localhost -storetype PKCS12 -keyalg RSA -keysize 2048 -sigalg SHA256withRSA -keystore gateway.p12 -validity 3650 -keypass 123123 -storepass 123123 -dname "CN=example.com, OU=IT, O=MyCompany, L=City, ST=State, C=US" -ext "SAN=DNS:example.com,DNS:localhost,IP:127.0.0.1"
+
+2. 第二步: 配置
+```yaml 
+server:
+  port: 10000
+  ssl:
+    enabled: true
+    key-store: classpath:gateway.p12
+    key-alias: gateway
+    key-password: 123123
+    key-store-type: PKCS12
+```
 
 
 
 
+#### 生产环境代码优化
+- openfeign 的接口 迁移到 公共module中(common)
 
-
-
-
+需要注意的是:
+由于迁移导致的 NotFound, 因此需要添加feign接口的配置
+@EnableFeignClients(basePackages={"current.application.package", "common.module.remote.package"})
+public class ServiceXXXApplication{}
 
 
 
