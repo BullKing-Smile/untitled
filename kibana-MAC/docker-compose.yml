@@ -12,7 +12,7 @@ services:
 #      - ELASTICSEARCH_USERNAME=elastic
 #      - ELASTICSEARCH_PASSWORD=mypassword
 #      - SERVER_SSL_ENABLED=true
-#      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.crt
+#      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
 #      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
       - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpOdm5LLTluUVNsLUZicXl3bU1vdk5R
     volumes:

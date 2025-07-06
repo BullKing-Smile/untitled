@@ -1,0 +1,125 @@
+services:
+  es00:
+    image: elasticsearch:8.18.0
+    container_name: es00
+    environment:
+      - node.name=es00
+      - cluster.name=es-docker-cluster
+      - node.roles=master,data
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es00
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - xpack.security.authc.success_cache.enabled=true
+      - ELASTIC_PASSWORD=password # 仅首次启动使用，后续通过API修改
+      - xpack.security.transport.ssl.enabled=true
+#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es00.key
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es00.crt
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
+    volumes:
+      - esdata00:/usr/share/elasticsearch/data
+      - ./certs:/usr/share/elasticsearch/config/certs  # 挂载SSL证书
+    ports:
+      - "9200:9200"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    networks:
+      - elastic
+  es01:
+    image: elasticsearch:8.18.0
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - node.roles=master,data
+      - discovery.seed_hosts=es00,es02
+      - cluster.initial_master_nodes=es00
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - xpack.security.authc.success_cache.enabled=true
+      - ELASTIC_PASSWORD=password
+      - xpack.security.transport.ssl.enabled=true
+#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es01.key
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es01.crt
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata01:/usr/share/elasticsearch/data
+      - ./certs:/usr/share/elasticsearch/config/certs
+    ports:
+      - "9210:9200"
+    networks:
+      - elastic
+  es02:
+    image: elasticsearch:8.18.0
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - node.roles=master,data
+      - discovery.seed_hosts=es00,es01
+      - cluster.initial_master_nodes=es00
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - xpack.security.authc.success_cache.enabled=true
+      - ELASTIC_PASSWORD=password
+      - xpack.security.transport.ssl.enabled=true
+#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es02.key
+      - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es02.crt
+      - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata02:/usr/share/elasticsearch/data
+      - ./certs:/usr/share/elasticsearch/config/certs
+    ports:
+      - "9220:9200"
+    networks:
+      - elastic
+  kibana:
+    image: kibana:8.18.0
+    container_name: kibana1
+    depends_on:
+      - es00
+      - es01
+      - es02
+    environment:
+      - ELASTICSEARCH_HOSTS=http://es00:9200
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpUNE5hYi1ucFNwLVFhMWNZZkRfQnJB
+    #      - SERVER_SSL_ENABLED=true
+    #      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
+    #      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+    volumes:
+      - ./certs:/usr/share/kibana/config/certs  # 挂载SSL证书
+    ports:
+      - "5601:5601"
+    networks:
+      - elastic
+
+volumes:
+  esdata00:
+    driver: local
+  esdata01:
+    driver: local
+  esdata02:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge

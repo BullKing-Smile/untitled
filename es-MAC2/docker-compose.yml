@@ -1,0 +1,45 @@
+services:
+  elasticsearch:
+    image: elasticsearch:8.18.0
+    container_name: elasticsearch
+    environment:
+      - node.name=elasticsearch
+      - cluster.name=es-docker-cluster
+      - discovery.type=single-node
+      - xpack.security.enabled=true
+      - xpack.security.authc.api_key.enabled=true
+      - xpack.security.authc.success_cache.enabled=true
+      - ELASTIC_PASSWORD=password  # 仅首次启动使用，后续通过API修改
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+      - ./certs:/usr/share/elasticsearch/config/certs  # 挂载SSL证书
+#      - ./ik:/usr/share/elasticsearch/plugins/ik
+    ports:
+      - "9200:9200"
+    networks:
+      - elastic
+
+  kibana:
+    image: kibana:8.18.0
+    container_name: kibana
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpER04tLTFUMVFHR0o1SVlFT0x5VE93  # 替换为生成的Token
+#      - SERVER_SSL_ENABLED=true
+#      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
+#      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+    volumes:
+      - ./certs:/usr/share/kibana/config/certs  # 挂载SSL证书
+    ports:
+      - "5601:5601"
+    networks:
+      - elastic
+
+volumes:
+  es_data:
+
+networks:
+  elastic:
+    driver: bridge

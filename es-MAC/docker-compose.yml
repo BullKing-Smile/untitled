@@ -1,7 +1,7 @@
 #services:
-#  elasticsearch-8.18.0:
-#    image: elasticsearch:8.18.0  # 请使用合适的版本
-#    container_name: elasticsearch
+#  elasticsearch-single:
+#    image: elasticsearch:8.18.0
+#    container_name: elasticsearch-single
 #    environment:
 #      - discovery.type=single-node
 #      - ELASTIC_PASSWORD=password  # 设置Elasticsearch超级用户的密码
@@ -26,16 +26,14 @@ services:
       - node.name=elasticsearch
       - cluster.name=es-docker-cluster
       - discovery.type=single-node
+      - ELASTIC_PASSWORD=password
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.authc.api_key.enabled=true
+#      - xpack.security.http.ssl.enabled=true
+#      - xpack.security.transport.ssl.enabled=true
+#      - xpack.security.authc.api_key.enabled=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
+
     volumes:
       - es_data:/usr/share/elasticsearch/data
       - es_certs:/usr/share/elasticsearch/config/certs
@@ -52,9 +50,10 @@ services:
       - elasticsearch
     environment:
       - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=kibanapassword
-      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+#      - ELASTICSEARCH_USERNAME=elastic
+#      - ELASTICSEARCH_PASSWORD=password
+#      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpOUGFad0FPb1F5YUFKbHQyM0NlVlZ3
     volumes:
       - es_certs:/usr/share/kibana/config/certs
     ports:

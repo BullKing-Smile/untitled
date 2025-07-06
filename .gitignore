@@ -58,3 +58,6 @@ redis/data/
 /es-MAC/esdata/
 /hippo4j-server/mysql/data/
 /hippo4j-server/data/
+/es-MAC2/certs/
+/es-MAC2/ik/
+/es-MAC-Cluster/certs/
