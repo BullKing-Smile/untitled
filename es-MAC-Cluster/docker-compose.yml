@@ -22,7 +22,7 @@ services:
       - esdata00:/usr/share/elasticsearch/data
       - ./certs:/usr/share/elasticsearch/config/certs  # 挂载SSL证书
     ports:
-      - "9200:9200"
+      - "9210:9200"
     ulimits:
       memlock:
         soft: -1
@@ -37,7 +37,7 @@ services:
       - cluster.name=es-docker-cluster
       - node.roles=master,data
       - discovery.seed_hosts=es00,es02
-      - cluster.initial_master_nodes=es00
+#      - cluster.initial_master_nodes=es00
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=true
@@ -56,8 +56,8 @@ services:
     volumes:
       - esdata01:/usr/share/elasticsearch/data
       - ./certs:/usr/share/elasticsearch/config/certs
-    ports:
-      - "9210:9200"
+#    ports:
+#      - "9210:9200"
     networks:
       - elastic
   es02:
@@ -66,9 +66,9 @@ services:
     environment:
       - node.name=es02
       - cluster.name=es-docker-cluster
-      - node.roles=master,data
+      - node.roles=master,data,voting_only
       - discovery.seed_hosts=es00,es01
-      - cluster.initial_master_nodes=es00
+#      - cluster.initial_master_nodes=es00
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=true
@@ -88,8 +88,8 @@ services:
     volumes:
       - esdata02:/usr/share/elasticsearch/data
       - ./certs:/usr/share/elasticsearch/config/certs
-    ports:
-      - "9220:9200"
+#    ports:
+#      - "9220:9200"
     networks:
       - elastic
   kibana:
@@ -100,15 +100,15 @@ services:
       - es01
       - es02
     environment:
-      - ELASTICSEARCH_HOSTS=http://es00:9200
-      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpUNE5hYi1ucFNwLVFhMWNZZkRfQnJB
-    #      - SERVER_SSL_ENABLED=true
-    #      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
-    #      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+      - ELASTICSEARCH_HOSTS=https://es00:9210
+      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpmMFp6QWc4TFRxaU9IbjdacllDcFdB
+      - SERVER_SSL_ENABLED=false
+      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
+      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
     volumes:
       - ./certs:/usr/share/kibana/config/certs  # 挂载SSL证书
     ports:
-      - "5601:5601"
+      - "5611:5601"
     networks:
       - elastic
 
