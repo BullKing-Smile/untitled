@@ -2593,6 +2593,26 @@ Scripting是Elasticsearch支持的一种专门用于复杂场景下支持自定�
 
 
 
+## 18.1.1 _cat api
+
+- _cat/nodes：查询节点分配情况
+- _cat/nodeattrs：查询节点属性
+- _cat/shards：查询分片分配情况
+- **<font color=red>_cat/allocation：查看节点的硬盘占用和剩余</font>**
+- _cat/count/<index>：查看索引的文档数量，可以用 _count 替代
+- _cat/health：查看集群健康状态
+- _cat/indices：查看集群中索引的分片数、文档数等信息，常用于查看集群中包含哪些索引。
+- _cat/plugins：查看集群中安装了哪些插件
+- _cat/templates：查看集群中包含了哪些索引模板
+
+
+
+## 18.1.2 _cluster api
+
+- **<font color=red>_cluster/allocation/explain</font>**：查看索引的分配执行计划，常用语查看索引为什么没有分配或者为什么分配到当前节点
+- _cluster/health：查看集群的健康状态
+- _cluster/state：查看集群状态的元数据
+- _cluster/stats：查看集群统计信息，相当于对 cat api 信息的一些汇总
 
 
 
@@ -2600,22 +2620,58 @@ Scripting是Elasticsearch支持的一种专门用于复杂场景下支持自定�
 
 
 
+### 18.2 索引压缩
+
+**<font color=red>实际上是压缩的分片</font>**，并非在原有索引上压缩，而是生成了一个新的索引，由于使用了 hash 路由算法以及索引不可变的特性
 
 
 
+#### 18.2.1 前提条件
+
+- 要压缩的索引必须是**只读**
+- **<font color=red>target index的所有p shard必须位于同一节点</font>**。
+- 索引的健康状态必须为 green
+- target index不能已存在
+- **<font color=red>target index分片数量必须为source index的约数</font>**。比如source index p shard：12,那么target index p shard只能是6 4 3 2 1，如果比如source index p shard是质数，那target index p shard只能是1。
+- 索引的 doc 数量不能超过 **2 147 483 519**个，因为单个分片最大支持这么多个**doc**。
+- 目标节点所在服务器必须有足够大的磁盘空间。
+- target index name必须满足一下条件
+  - 仅小写
+  - 不能包括****，**/**，****\*，\**?**，"，<，>，|，``（空格字符）， **,**，#**
+  - 7.0之前的索引可能包含冒号（**:**），但已过时，并且在7.0+中不支持
+  - 不能为**.**或**..**
+  - 不能超过255个字节（请注意它是字节，因此多字节字符将更快地计入255个限制）
+  - 不建议使用以**.**开头的名称，但[隐藏索引](https://cloud.fynote.com/share/#index-hidden)和由插件管理的内部索引 除外
 
 
 
+#### 18.2.2 操作步骤
 
+**备份数据：不做强制要求**
 
+```
+POST _reindex
+{
+  "source": {
+    "index": "source_index"
+  },
+  "dest": {
+    "index": "target_index"
+  }
+}
+```
 
+**删除副本**
 
+```
+"index.number_of_replicas": 0
+```
 
+**设置只读**
 
-
-
-
-
+```
+"index.blocks.write": true
+```
 
 
 

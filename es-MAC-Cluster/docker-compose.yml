@@ -6,15 +6,16 @@ services:
       - node.name=es00
       - cluster.name=es-docker-cluster
       - node.roles=master,data
+      - transport.port=9300
       - discovery.seed_hosts=es01,es02
       - cluster.initial_master_nodes=es00
-      - bootstrap.memory_lock=true
+      - bootstrap.memory_lock=true # swapping, 应尽力避免swap,
       - xpack.security.enabled=true
       - xpack.security.authc.api_key.enabled=true
       - xpack.security.authc.success_cache.enabled=true
       - ELASTIC_PASSWORD=password # 仅首次启动使用，后续通过API修改
       - xpack.security.transport.ssl.enabled=true
-#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es00.key
       - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es00.crt
       - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
@@ -36,8 +37,9 @@ services:
       - node.name=es01
       - cluster.name=es-docker-cluster
       - node.roles=master,data
+      - transport.port=9300
       - discovery.seed_hosts=es00,es02
-#      - cluster.initial_master_nodes=es00
+      - cluster.initial_master_nodes=es00
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=true
@@ -45,7 +47,7 @@ services:
       - xpack.security.authc.success_cache.enabled=true
       - ELASTIC_PASSWORD=password
       - xpack.security.transport.ssl.enabled=true
-#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es01.key
       - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es01.crt
       - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
@@ -56,8 +58,8 @@ services:
     volumes:
       - esdata01:/usr/share/elasticsearch/data
       - ./certs:/usr/share/elasticsearch/config/certs
-#    ports:
-#      - "9210:9200"
+    ports:
+      - "9220:9200"
     networks:
       - elastic
   es02:
@@ -67,8 +69,9 @@ services:
       - node.name=es02
       - cluster.name=es-docker-cluster
       - node.roles=master,data,voting_only
+      - transport.port=9300
       - discovery.seed_hosts=es00,es01
-#      - cluster.initial_master_nodes=es00
+      - cluster.initial_master_nodes=es00
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
       - xpack.security.enabled=true
@@ -76,7 +79,7 @@ services:
       - xpack.security.authc.success_cache.enabled=true
       - ELASTIC_PASSWORD=password
       - xpack.security.transport.ssl.enabled=true
-#      - xpack.security.transport.ssl.verification_mode=full
+      - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.security.transport.ssl.key=/usr/share/elasticsearch/config/certs/es02.key
       - xpack.security.transport.ssl.certificate=/usr/share/elasticsearch/config/certs/es02.crt
       - xpack.security.transport.ssl.certificate_authorities=/usr/share/elasticsearch/config/certs/ca.crt
@@ -88,11 +91,12 @@ services:
     volumes:
       - esdata02:/usr/share/elasticsearch/data
       - ./certs:/usr/share/elasticsearch/config/certs
-#    ports:
-#      - "9220:9200"
+    ports:
+      - "9230:9200"
     networks:
       - elastic
-  kibana:
+
+  kibana1:
     image: kibana:8.18.0
     container_name: kibana1
     depends_on:
@@ -100,11 +104,18 @@ services:
       - es01
       - es02
     environment:
-      - ELASTICSEARCH_HOSTS=https://es00:9210
-      - ELASTICSEARCH_SERVICEACCOUNTTOKEN=AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjpmMFp6QWc4TFRxaU9IbjdacllDcFdB
+     # - ELASTICSEARCH_HOSTS=[http://es00:9210,http://es01:9220,http://es02:9230]
+      - ELASTICSEARCH_HOSTS=http://es00:9200
+      - ELASTICSEARCH_REQUESTTIMEOUT=60000
+      - ELASTICSEARCH_USERNAME=kibana
+      - ELASTICSEARCH_PASSWORD=*UszNgIqfcZs228Q5hdd
+    #  - ELASTICSEARCH_SERVICEACCOUNTTOKEN= AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYS10b2tlbjo5NkNwUHRPWVRVQ3FEMTZBNFh6VGhB
       - SERVER_SSL_ENABLED=false
-      - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
-      - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+     # - SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.csr
+      #- SERVER_SSL_CERTIFICATE=/usr/share/kibana/config/certs/kibana.pem
+      #- SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+     # - SERVER_SSL_KEY=/usr/share/kibana/config/certs/kibana.key
+     # - SERVER_READYTIMEOUT=120000
     volumes:
       - ./certs:/usr/share/kibana/config/certs  # 挂载SSL证书
     ports:
