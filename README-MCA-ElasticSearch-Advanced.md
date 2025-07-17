@@ -2675,9 +2675,549 @@ POST _reindex
 
 
 
+```json
+
+# 设置副本为0
+PUT test_index/_settings
+{
+    "number_of_replicas": 0,
+    "index.blocks.write": true,
+    "index.routing.allocation.require_name": "node1"
+}
+# 执行索引压缩 _shrink
+{
+    "settings": {
+        "index.number_of_replicas": 1,
+        "index.number_of_shards"; 3,
+        "index.codec": "best_compression"
+    }
+}
+```
 
 
 
+
+
+
+
+#### 18.2.3 索引的增删改
+
+refresh_interval 数据写入从Memery_Buffer刷新到segment的时间间隔
+
+```
+PUT index_name
+{
+	"settings": {
+		"refresh_interval": "10s"
+	}
+}
+
+# 判断索引是否存在
+HEAD index_name
+
+# 打开索引
+POST index_name/_open
+
+# 关闭索引
+POST index_name/_close
+```
+
+
+
+
+
+#### 18.2.4 索引别名 Alias
+
+语法
+
+```json
+POST /_alias
+
+# 创建别名
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "test_index_001",
+        "alias": "alias_test_index_001"
+      }
+    }
+  ]
+}
+# 创建别名后，以下两个查询语句 输出结果相同
+GET test_index_001/_search
+GET alias_test_index_001/_search
+
+
+# 删除别名
+POST /_aliases
+{
+  "actions": [
+    {
+      "remove": {
+        "index": "test_index_001",
+        "alias": "alias_test_index_001"
+      }
+    },
+    {
+      "add": {
+        "index": "test_index_001",
+        "alias": "alias_test_index_001_2"
+      }
+    }
+  ]
+}
+
+
+# 显示定义映射关系，并且指定别名
+PUT /test
+{
+    "mappings": {},
+    "settings": {},
+    "aliases": {
+        "alias_1": {},
+        "alias_2": {
+            "filter": {
+                "term": {
+                    "key": "123456"
+                }
+            }
+        }
+    }
+}
+```
+
+
+
+- 多个索引 可以绑定一个别名
+- 
+
+
+
+
+
+#### 18.2.5 滚动索引
+
+触发条件
+
+- max_age： 时间阈值
+- max_docs: 文档阈值
+- max_size：空间阈值
+
+语法
+
+```json
+POST /<alias_name>/_rollover
+{
+    "conditions": {
+        "max_age": "7d",
+        "max_docs": 2,
+        "max_size":"5gb"
+    }
+}
+```
+
+
+
+#### 18.2.6 索引模板
+
+```json
+PUT _index_template/logs-template
+{
+  "index_patterns": ["logs-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 2,
+      "number_of_replicas": 1
+    },
+    "mappings": {
+      "properties": {
+        "@timestamp": { "type": "date" },
+        "message": { "type": "text" }
+      }
+    }
+  }
+}
+```
+
+
+
+
+
+#### 18.2.6 索引的生命周期管理
+
+**Index Lifecycle Management (ILM)** 是Elasticsearch提供的一种自动化索引生命周期管理功能，它允许用户根据索引的年龄、大小或其他条件，自动执行索引的滚动(rollover)、分片优化、冷热分离、删除等操作。
+
+生命周期的而几个阶段
+
+- Hot
+- Warm
+- Cold
+- Frozen
+- Delete
+
+
+
+
+
+
+
+**<font color=red>ES使用ILM时，数据写入 默认优先写入data_content节点，如果有多个data_content则随机写入一个节点</font>**。
+
+
+
+**配置 ILM Policy**
+
+```
+PUT _ilm/policy/test_ilm
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "set_priority": {
+            "priority": 100
+          }
+        }
+      },
+      "warm": {
+        "min_age": "10s",
+        "actions": {
+          "set_priority": {
+            "priority": 50
+          }
+        }
+      },
+      "cold": {
+        "min_age": "20s",
+        "actions": {
+          "set_priority": {
+            "priority": 0
+          }
+        }
+      },
+      "delete": {
+        "min_age": "30s",
+        "actions": {
+          "delete": {
+            "delete_searchable_snapshot": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+***\*创建索引模板 引用ILM\****
+
+```
+PUT _index_template/my_template
+{
+  "index_patterns": ["test_ilm_index_*"], 
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.lifecycle.name": "test_ilm"
+    }
+  }
+}
+```
+
+**创建索引使用索引模板**
+
+```
+PUT test_ilm_index_000001
+{
+  "aliases": {
+    "test-alias":{
+      "is_write_index": true 
+    }
+  }
+}
+```
+
+**写入数据测试**
+
+```
+PUT test_ilm_index_000001/_bulk
+{"index":{"_id":1}}
+{"title":"test data 1"}
+{"index":{"_id":2}}
+{"title":"test data 2"}
+```
+
+**刷新索引方便看结果（非必要代码）**
+
+```
+POST test-alias/_refresh
+```
+
+
+
+
+
+
+
+
+
+#### 18.2.7 数据流
+
+##### 1：创建ILM策略，这是数据流所必须的，步骤如上
+
+```json
+PUT _ilm/policy/test_ilm
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "min_age": "0ms",
+        "actions": {
+          "rollover": {
+            "max_primary_shard_size": "50mb",
+            "max_age": "30m",
+            "max_docs": 2
+          },
+          "set_priority": {
+            "priority": 100
+          }
+        }
+      },
+      "warm": {
+        "min_age": "5s",
+        "actions": {
+          "set_priority": {
+            "priority": 50
+          },
+          "allocate": {
+            "require": {
+              "hot_warm_cold": "warm"
+            }
+          }
+        }
+      },
+      "cold": {
+        "min_age": "15s",
+        "actions": {
+          "set_priority": {
+            "priority": 0
+          },
+          "allocate": {
+            "require": {
+              "hot_warm_cold": "cold"
+            }
+          }
+        }
+      },
+      "delete": {
+        "min_age": "20s",
+        "actions": {
+          "delete": {
+            "delete_searchable_snapshot": true
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+##### 2：创建组件模板
+
+**组件模板相当于是索引模板更小粒度的拆分，使得索引模板的使用更加灵活。**
+
+```json
+PUT _component_template/my-mappings
+{
+  "template": {
+    "mappings": {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "date_optional_time||epoch_millis"
+        },
+        "message": {
+          "type": "wildcard"
+        }
+      }
+    }
+  }
+}
+PUT _component_template/my-settings
+{
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "test_ilm",
+      "number_of_replicas": 0
+    }
+  }
+}
+```
+
+##### 3：创建索引模板
+
+**创建索引模板目的是关联哪些索引会使用到数据流**
+
+```json
+PUT _index_template/my-index-template
+{
+  "index_patterns": ["my-data-stream*"],
+  "data_stream": { },
+  "composed_of": [ "my-mappings", "my-settings" ],
+  "priority": 500
+}
+```
+
+##### 4：创建数据流
+
+**数据流是针对于已存在的索引创建的，也是通过索引名称去关联索引模板中定义好的数据流的。**
+
+#### 方式一 写入数据自动创建
+
+```json
+PUT my-data-stream_1/_bulk
+{ "create":{ } }
+{ "@timestamp": "2099-05-06T16:21:15.000Z", "message": "192.0.2.42 - - [06/May/2099:16:21:15 +0000] "GET /images/bg.jpg HTTP/1.0" 200 24736" }
+{ "create":{ } }
+{ "@timestamp": "2099-05-06T16:25:42.000Z", "message": "192.0.2.255 - - [06/May/2099:16:25:42 +0000] "GET /favicon.ico HTTP/1.0" 200 3638" }
+
+GET _data_stream/my-data-stream_1
+POST my-data-stream/_doc
+{
+  "@timestamp": "2099-05-06T16:21:15.000Z",
+  "message": "192.0.2.42 - - [06/May/2099:16:21:15 +0000] "GET /images/bg.jpg HTTP/1.0" 200 24736"
+}
+```
+
+
+
+
+
+
+
+
+
+#### 18.2.8 安全配置
+
+- 最低安全配置
+
+  ```properties
+  xpack.security.enable=true
+  ```
+
+- 基本安全配置(集群必须)
+
+  ```properties
+  #开启security
+  xpack.security.enable=true
+  #配置SSL证书 
+  xpack.security.transport.ssl.enabled: true
+  ```
+
+  
+
+
+
+ 交互式设置密码
+
+./bin/elasticsearch-setup-passwords interactive
+
+
+
+
+
+#### 18.2.9  **角色**
+
+方式一：基于Kibana图形界面
+
+方式二：
+
+```json
+POST /_security/role/role_master
+{
+  "cluster": ["all"], 
+  "indices": [
+    {
+      "names": [ "index1", "index2" ],
+      "privileges": ["read"], //只读权限 考试中可能会出现的情况 read write all
+      "field_security" : { //可选 字段权限
+        "grant" : [ "title", "body" ]
+      },
+      "query": "{\"match\": {\"title\": \"msb\"}}" //可选
+    }
+  ],
+  "run_as": [ "other_user" ], // optional
+}
+```
+
+
+
+#### 18.2.10 创建用户
+
+方式一：基于Kibana图形界面
+
+方式二：基于DSL
+
+```json
+POST /_security/user/jian
+{
+  "password" : "password",
+  "roles" : [ "role_master", "kibana_user" ],
+  "full_name" : "elastic开源社区",
+  "email" : "elastic.org.cn"
+}
+```
+
+
+
+Attention!!! 
+
+- 如果题目要求创建角色，记得给用户添加 `kibana_admin` `kibana_user`的角色，不然无法登陆 Kibana
+- 字段 和 文档 级权限控制为付费功能，开发或测试条件下，可通过开启30天免费会员试用功能配置
+
+
+
+
+
+#### 18.2.11 快照
+
+*快照*是从正在运行的 Elasticsearch 集群中获取的备份。可以针对整个集群拍摄快照，也可以针对整个集群的数据流和索引。也可以仅对集群中的特定数据流或索引进行快照。
+
+**备份集群的唯一可靠且受支持的方法是拍摄快照**。不可通过复制其节点的数据目录来备份 Elasticsearch 集群。不支持从文件系统级备份中恢复任何数据的方法。如果您尝试从此类备份中恢复集群，它可能会因报告损坏或丢失文件或其他数据不一致而失败，或者它可能似乎已经成功地默默地丢失了一些数据。
+
+集群节点的数据目录副本不能用作备份，因为它不是其内容在单个时间点的一致表示。您无法通过在制作副本时关闭节点来解决此问题，也无法通过获取原子文件系统级快照来解决此问题，因为 Elasticsearch 具有跨越整个集群的一致性要求。必须使用内置快照功能进行集群备份
+
+
+
+
+
+
+
+```json
+# 注册快照仓库
+path.repo: ["~/es/backup"]
+
+# 注册快照存储库
+PUT /_snapshot/my_backup
+{
+  "type": "fs",
+  "settings": {
+    "location": "~/es/backup"
+  }
+}
+
+
+# 创建快照
+PUT /_snapshot/my_backup/snapshot_1?wait_for_completion=true
+
+# 还原快照
+POST /_snapshot/my_backup/snapshot_1/_restore
+
+
+
+```
 
 
 
