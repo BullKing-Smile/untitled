@@ -236,7 +236,7 @@ SHOW VARIABLES LIKE 'optimizer_switch';
 - 查看：show variables like 'transaction_isolation';
 - level: {
   repeatable read | read committed | read uncommitted | serializable
-}
+  }
 
 
 ## MySQL 事务
@@ -619,7 +619,7 @@ show variables like 'log_error';
   - set global log_output='FILE'; -- 将日志输入到文件中
 
 - 二进制文件 (binlog)
-存储select之外的语句。 DDL DML, 事件形式存储。
+  存储select之外的语句。 DDL DML, 事件形式存储。
   - show variables like 'log_bin';
   - 作用：
     - 数据备份/恢复
@@ -858,9 +858,9 @@ show variables like 'innodb_default_row_format'; --- 查看磁盘行格式
 - 所有叶子节点存放在一个段
 - 其他非叶子节点存放在另一个段。
 
-
-双写机制(double write buffer) 防止数据丢失, **<font color=yellow>用于保障数据页（data page）写入的完整性和一致性的一种机制</font>**。
+双写机制(double write buffer) 防止数据丢失, **<font color=orange>用于保障数据页（data page）写入的完整性和一致性的一种机制</font>**。
 doublewrite buffer 是InnoDB在系统表空间上的128个页（2个区 extend1,extend2）,大小是2MB
+
 > 系统表空间有两个连续的缓冲区buffer, 
 > 第一次,数据写入会先往这个缓冲区写入数据，
 > 第二次，写真正的数据文件。
