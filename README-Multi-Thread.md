@@ -175,7 +175,7 @@ public class CompleteFutureAcceptToEitherMain {
 ### get() 与 join() 的区别
 > 两者都是 <b>以阻塞的方式</b>获取异步任务结果的方法<br>
 - get()会 抛出 编译时异常， 必须处理<br>
-- <font color=yellow>join() 只会有运行时异常， 可以不处理， 因此 更适合流式编程方式</font><br>
+- <font color=green>join() 只会有运行时异常， 可以不处理， 因此 更适合流式编程方式</font><br>
 
 
 
@@ -185,8 +185,8 @@ public class CompleteFutureAcceptToEitherMain {
 > - 任务是CPU密集型, 建议使用 ParallelStream, 使用处理器 多线程是没有意义的。
 
 - I/O密集型 & CPU密集型
-> - CPU密集型， 也叫计算密集型， 系统运行时<font color=yellow>大部分时间CPU占有率100%</font>， I/O会在很短时间内完成。
-> - I/O密集型，<font color=pink>大部分时间CPU在等I/O(硬盘/内存)的读写操作</font>，但CPU使用率不高。
+> - CPU密集型， 也叫计算密集型， 系统运行时<font color=orange>大部分时间CPU占有率100%</font>， I/O会在很短时间内完成。
+> - I/O密集型，<font color=blue>大部分时间CPU在等I/O(硬盘/内存)的读写操作</font>，但CPU使用率不高。
 
 
 - 多少线程数合适

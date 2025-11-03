@@ -78,11 +78,11 @@ javap -p -v .\xxx.class
 
 ### 1.3 JVM类加载机制的三种特性
 
-- 全盘负责，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入
+- **<font color=#ffa078>全盘负责</font>**，当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入
 
 > 真正加载class字节码文件生成Class对象由“双亲委派”机制完成。
 
-- **父类委托**，“双亲委派”是指**子类加载器如果没有加载过该目标类，就先委托父类加载器加载**该目标类
+- **<font color=#19a078>父类委托</font>**，“双亲委派”是指**子类加载器如果没有加载过该目标类，就先委托父类加载器加载**该目标类
 
 > 加载Class的具体过程是：
 >
@@ -100,7 +100,7 @@ javap -p -v .\xxx.class
 >
 > ![image.png](https://fynotefile.oss-cn-zhangjiakou.aliyuncs.com/fynote/1463/1646137467048/000d19eeb6c64783875c14592668f223.png)
 
-- 缓存机制，缓存机制将会保证所有加载过的Class都将在内存中缓存。相同全名的类只加载一次，即 loadClass方法不会被重复调用。
+- **<font color=#f93078>缓存机制</font>**，缓存机制将会保证所有加载过的Class都将在内存中缓存。相同全名的类只加载一次，即 loadClass方法不会被重复调用。
 
 
 
@@ -308,13 +308,13 @@ jvisualvm
 
 #### 1.5.2 对象的引用类型
 
-- 强引用 Strong Reference
-- 软引用 Soft Reference  一些**有用但非必须**的对象，可用软引用关联，**发生OOM之前进行回收**
+- **强引用** Strong Reference
+- **软引用** Soft Reference  一些**有用但非必须**的对象，可用软引用关联，**发生OOM之前进行回收**
   - **问题**：可能会引起运行效率。如初始化耗时；或者该对象由第三方的某些操作
   - **优点**： 自动内存管理(<font color=red>内存不足自动释放</font>)
   - **经典应用场景**：<font color=red>图片/资源缓存，临时数据存储</font>
-- 弱引用 Weak Reference   发生一次**<font color=red>Full GC后 直接被回收</font>**
-- 虚引用 Photom   被回收时，会受到一个**系统通知**
+- **弱引用** Weak Reference   发生一次**<font color=red>Full GC后 直接被回收</font>**
+- **虚引用** Photom   被回收时，会受到一个**系统通知**
 
 
 
@@ -504,8 +504,7 @@ b. 非Boolean 类型， 即 Key-Value类型
 
 
 
-- **Serial Old** --- 也是单线程， 会发生STW
-
+- **Serial Old** --- 也是单线程， 会发生STW  **针对old区**
 - **ParNew** 可以理解成**Serial的多线程版本**   **并行式**垃圾收集器
 
   - 优点： 多核CPU时，比Serial效率高
@@ -514,22 +513,27 @@ b. 非Boolean 类型， 即 Key-Value类型
   - 算法：复制算法
   - 适用范围：新生代
   - **Server模式下， 首先新生代垃圾收集器**
-
-- **CMS (Concurrent Mark Sweep)** 
-
-  - 核心目的 关注更短的垃圾收集时间， 一定要大于2核
+- **Parallel Scavenge <font color=#ff34a0>针对年轻代 </font> JDK8默认**
+  - 基于‌**复制算法**‌的多线程收集器，专注于‌**高吞吐量**‌优化
+  - 类似 ParNew ，但是更关注吞吐量
+- **Parallel Old <font color=#ff34a0>针对老年代</font> JDK8默认**
+  - 基于‌**标记-整理算法**‌的多线程收集器，与新生代协同实现全堆并行回收
+  - 避免内存碎片化（对比 CMS 的标记-清除)
+- **CMS (Concurrent Mark Sweep)  --- 仅针对老年代Old,  JDK1.4.2 引入， JDK5正式使用， JDK9 废弃了， JDK14移除**
+  - 核心目的 **<font color=#ff34a0>关注更短的垃圾收集时间</font>**， 一定要大于2核
   - 并发 
   - 步骤：
     - 初始标记 --- 标记GC Roots直接关联对象 **不耗时 STW**
-    - 并发标记 --- Roots开始 遍历标记 可达对象 耗时 并发执行
+    - **<font color=green>并发标记</font>** --- Roots开始 遍历标记 可达对象 耗时 并发执行   **与用户线程并行执行**
     - 重新标记 --- 上一步的基础上 标记变化的内容 **不耗时 STW**
-    - 并发清理 --- 清理 不可达对象回收空间  耗时 并发执行
-
-- **Parallel Scavenge** --- 新生代收集器， 复制算法， 并行多线程， 类似 ParNew ，但是更关注吞吐量
+    - **<font color=green>并发清理</font>** --- 清理 不可达对象回收空间  耗时 并发执行  **与用户线程并行执行** 
 
 
 
 - **G1** ---  **堆区 <font color=red>不再物理隔离(Eden/Survivor/Old), 分成2048个大小相等的独立区域Region</font>**
+
+  **<font color=red>JDK 7引入， JDK9+ 正式取代CMS 成为默认收集器</font>**
+
   - 停顿时间更短
   - 一定程度上解决 空间碎片的问题
   - Region 角色
@@ -543,9 +547,11 @@ b. 非Boolean 类型， 即 Key-Value类型
 
 - ZGC  --- 物理上/逻辑上  都不区分 新/老年代 区域了
 
+​	**<font color=red>JDK 11引入， JDK15 正式投入生产使用</font>**
 
-
-
+	1. **亚毫秒级停顿** jdk16以后 stw 1ms以内
+	1. **高吞吐量**
+	1. **大堆支持  --- JDK 15+ 支持 16TB**
 
 
 
@@ -563,7 +569,14 @@ b. 非Boolean 类型， 即 Key-Value类型
 
 
 
+##### 17.3.1 **组合使用方案**
 
+| 新生代            | 老年代       | 启用参数                                 |
+| :---------------- | :----------- | :--------------------------------------- |
+| Serial            | Serial Old   | -XX:+UseSerialGC                         |
+| ParNew            | CMS          | -XX:+UseParNewGC -XX:+UseConcMarkSweepGC |
+| Parallel Scavenge | Parallel Old | -XX:+UseParallelGC -XX:+UseParallelOldGC |
+| G1                | G1           | -XX:+UseG1GC                             |
 
 
 
@@ -1189,6 +1202,37 @@ jstat -gc PID 1000 10
     ```
 
     
+
+
+
+
+
+##### 1.11.1.2 Windows查看并关闭进程
+
+1. 查看进程号 
+
+   ```bash
+   netstat -ano | findstr :[PORT]
+   eg：
+   netstat -ano | findstr ：8082
+   ```
+
+2. 关闭（PowerShell-管理员身份运行）
+
+   ```bash
+   taskkill /F /PID [PID]
+   eg:
+   taskkill /F /PID 20560
+   
+   ```
+
+   参数说明：
+
+   /F --- 表示强制
+
+   /PID --- 要杀死的进程号
+
+
 
 
 

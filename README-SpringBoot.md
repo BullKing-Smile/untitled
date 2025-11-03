@@ -602,8 +602,8 @@ resilience4j:
 - @Autowired 是Spring框架的注解， @Resource 是 javax的注解
 - @Autowired 可以添加在 构造方法的声明之前， @Resource 不可用在构造方法
 - @Autowired ***现根据类型*** 再根据名称进行装配
-- @Resource ***现根据 名称***， 再根据 类型进行装配
-
+- @Resource ***现根据 名称***， 再根据 类型进行装配, 
+  - **<font color=red>需要注意 @Resource 根据名称 查找到如果类型不匹配， 则直接报错。</font>**
 引申
 - 建议使用构造方法实现 自动装配属性
 - @Resource 指定名称 --- @Resource(name = "")
@@ -678,7 +678,47 @@ private IUserRepository userJDBCRepository;
 > springboot启动时 创建一个父容器来通过 bootstrap.yml中的配置来加载配置中心的内容
 
 
-### 事务的传播行为/传播属性
+
+###  配置文件中的 密码信息 加密处理 2
+
+**<font color=red>使用 Jasypt（推荐）</font>**
+
+```xml
+<dependency>
+    <groupId>com.github.ulisesbocchio</groupId>
+    <artifactId>jasypt-spring-boot-starter</artifactId>
+    <version>3.0.5</version>
+</dependency>
+```
+
+1. **生成加密值**（使用 Jasypt 工具或代码）：
+
+   bash
+
+   ```
+   java -cp jasypt-1.9.3.jar org.jasypt.intf.cli.JasyptPBEStringEncryptionCLI \
+     input="your_password" password="your_secret_key" algorithm="PBEWITHHMACSHA512ANDAES_256"
+   ```
+
+2. **配置加密值**（`application.yml`）：
+
+yaml
+
+```
+spring:
+  datasource:
+    password: ENC(加密后的字符串)
+jasypt:
+  encryptor:
+    password: your_secret_key  # 密钥（可通过环境变量传递）
+```
+
+
+
+
+
+### 事务的传播行为/传播属性  事务传递
+
 事务的传播 只发生在 事务嵌套中
 eg:
 ```java

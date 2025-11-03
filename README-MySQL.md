@@ -1,11 +1,30 @@
 # MySQL
 > 
 > 
-##
+##SQL 优化
 
-## SQL 优化
+
+
+命令行连接
+
+mysql -u root -p
+
+show databases;
+
+use your_database;
+
+select * from .....;
+
+
+
+
+
+
+
+
 
 ### 索引
+
 > 索引 是 帮助MySQL高效获取数据的<font color=yellow><b>排好序</b></font>的<font color=gress><b>数据结构</b></font>
 索引的数据结构：
 - 二叉树
@@ -24,7 +43,6 @@
 ### 删除索引
 > drop index index_name on table_name<br>
 > alter table table_name drop index index_name<br>
->
 
 ### 索引的基本原理
 > <font color=orange><b>把无序的数据 变成 有序的查询</b></font>
@@ -159,7 +177,7 @@ like %xxx% 不走索引， like xxx% 才走索引。
 ### InnoDB隔离级别
 - read uncommit(读未提交): <b>脏读</b> ---- 会读到事务尚未提交的数据
 - read commit(读已提交): 不可重复读 ---- 只会读取到<font color=red>已经提交事务</font>的数据
-- repeatable read(可重复读): 脏写  ---- 默认隔离级别, 读操作的开始事务时 该表的数据 可重复读， 即使其他事务committed的数据也不影响 该操作。对整个表有效。
+- **repeatable read(可重复读): 脏写  ---- 默认隔离级别**, 读操作的开始事务时 该表的数据 可重复读， 即使其他事务committed的数据也不影响 该操作。对整个表有效。
 - serializable(串行) ---- 事务开始后 其他的读写都被 暂停， 只能串行执行， 无法并行执行。 默认在读语句后边加锁 (lock in share mode;)
 
 ><b>对于传统 读取数据作为报表的 业务场景， 读操作 使用RR(repeatable read) 隔离界别，保证数据的同一时间性。</b><br>

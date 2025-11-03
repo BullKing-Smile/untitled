@@ -9,13 +9,13 @@ Iaas: Infrastructure as a Service, 基础设施即服务
   oa
   Docker 就是基于PaaS产生的一个容器技术
 
-## 定义
+## 1 定义
 > Docker 是一种虚拟化容器技术<br>
 > 通过虚拟化技术，可以对物理机的资源进行有效的利用。<br>
 > 软件虚拟化/硬件虚拟化/内存虚拟化/网络虚拟化/桌面虚拟化/服务虚拟化。。。
 
 
-### 核心概念
+### 1.1 核心概念
 - Image
 - Container
 - Registry(仓库注册中心)
@@ -25,20 +25,20 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 > 一个Registry中会有多个Repository
 > 一个Repository中会哟多个tag的Image
 
-### Installation(CentOS)
+### 1.2 Installation(CentOS)
 - yum -y remove docker // uninstall the old version
 - yum install -y docker // install new version
 - systemctl start docker // start docker
 - systemctl start docker.service // start docker
 
-## Docker的优点
+## 2 Docker的优点
 - 简化程序 --- 的应用以及依赖包到一个可移植的容器中，然后发布到任何流
   行的 Linux 机器上，便可以实现虚拟化。
 - 避免选择恐惧症 --- 
 - 节省开支
 
 
-## Docker 架构
+## 3 Docker 架构
 <img src="./static/docker_structure.png"/>
 
 1. Docker daemon是一个运行在宿主机（ DOCKER-HOST）的后台进程。可通过 Docker
@@ -51,9 +51,9 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 
 
 
-## Docker 常用命令
+## 4 Docker 常用命令
 
-- docker search [image_name] --- 搜索镜像
+- docker search [image_name] --- **<font color=red>搜索镜像</font>**
 > docker search java
 修改镜像仓库 registry地址：
 > /etc/docker/daemon.json
@@ -62,7 +62,7 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 "registry-mirrors": ["https://m9r2r2uj.mirror.aliyuncs.com"]
 }
 ```
-重启docker服务 service docker restart
+**<font color=red>重启docker服务 service docker restart</font>**
 
 - docker pull [image_name]:[version]  --- 下载镜像
 > docker pull java:8
@@ -70,7 +70,7 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 
 - docker images --- 列出镜像(downloaded)
 
-### 删除镜像
+### 4.1 删除镜像
 - docker rmi <image name>:<tag> // 删除镜像, 不加tag默认latest version eg: docker rmi redis
 - docker rmi <imageID> // 删除镜像 by ID 该镜像的所有版本
 - docker rmi $(docker images -q) // 删除所有镜像
@@ -78,7 +78,7 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 > docker rmi java
 
 
-### 容器操作命令
+### 4.2 容器操作命令
 - docker run -i -t --name [container name] repository:tag /bin/bash
 - docker run -it --name [container name] imageID /bin/bash
 
@@ -86,7 +86,7 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 - docker run -d --name [container name] repository:tag
 - docker run -d --name [container name] imageID
 
-### 启动容器
+### 4.3 启动容器
 - docker run <container Name/ID> // 创建并启动容器
 - docker start <container Name/ID> //启动容器
 > eg
@@ -101,30 +101,21 @@ Iaas: Infrastructure as a Service, 基础设施即服务
 eg:
 > docker run -d -p 91:80 nginx
 
-### 容器查看
+### 4.4 容器查看
 - docker ps // 查看正在运行的容器
-- docker ps -a // 查看历史 运行过的容器
+- docker ps -a // 查看历史 运行过（终止状态）的容器
 - docker ps -l // 查看最近 运行过的容器
-
-- docker ps --- 列出容器(运行)
-- docker ps -a --- 列出终止状态的容器
 - docker start [container_id] --- 启动终止状态的容器
 - docker restart [container_id] --- 终止一个运行状态的容器， 再启动。
 - docker stop [container_id] --- 停止容器
-
 - docker kill [container_id] --- 强制停止容器
-
-- docker start [container_id] --- 启动已停止的容器
-
-- docker inspect [container_id] --- 查看容器所有信息
-
+- **docker inspect [container_id] --- <font color=red>查看容器所有信息</font>**
 - docker container logs [container_id] --- 查看容器日志
 - docker logs -f [container_id|container_name] --- 查看实时日志
-
 - docker top [container_id] --- 查看容器里的进程
 
-### 进入容器(运行状态的容器)
-- docker exec -it <container name/id> /bin/bash // 推荐方式
+### 4.5 进入容器(运行状态的容器)
+- **docker exec -it <container name/id> /bin/bash // 推荐方式**
 - docker attach <container name/id> // 退出 容器则停止
 - docker exec -it [container_id] /bin/bash 进入容器
   命令解释
@@ -136,7 +127,7 @@ eg:
 - -p // 端口映射 前者是 宿主机端口， 后者是 容器内映射端口， 可以做多端口映射
 
 
-### 删除容器
+### 4.6 删除容器
 - docker rm
 - docker rm [container_id] --- 删除容器(针对已停止)
 - docker rm -f [container_id] --- 强制删除容器(包括在运行的)
@@ -155,7 +146,7 @@ eg:
 - docker push [repository]
 > eg: docker push ouruser/sinatra
 
-### 保存 导出
+### 4.7 保存 导出
 - docker save repository:tag/imageID > /root/xx.tar.gz // 导出镜像
 - docker load < /root/xx.tar.gz //导入镜像
 - docker load --input [image_file] --- 将下载的镜像文件 导入到本地镜像仓库
@@ -170,16 +161,16 @@ eg:
 - docker run -d -p 8083:8083 --net=host microservice-coupon:1.0.0
 
 
-### 文件复制
+### 4.8 文件复制
 - docker cp /root/xxx.txt [continer name]:/user/local/
 > eg: docker ps /usr/local/test.txt my_centos:/user/local/<br>
 > docker cp 宿主机文件 容器名称:容器内路径<br>
 
-### 查看容器配置
+### 4.9 查看容器配置
 - docker inspect <container name>
 
 
-### 从其他注册中心拉取镜像
+### 4.10 从其他注册中心拉取镜像
 - 第一步修改配置文件
 > vi /etc/docker/daemon.json // 默认没有这个文件，创建即可
 ```shell
@@ -192,14 +183,14 @@ eg:
 >
 
 
-### 镜像 常用命令
+### 4.11 镜像 常用命令
 - docker search [image_name] --- 搜索镜像， -s N 参数可以指定仅显示评价为 N 星以上的镜像。
 - docker pull [image name] --- 下载镜像到本地仓库
 - docker tag IMAGE[:TAG] [REGISTRYHOST/][USERNAME/]NAME[:TAG] --- docker tag 来标记一个镜像
 > docker tag ba58 192.168.7.26:5000/test
 - docker push 192.168.7.26:5000/test --- docker push 上传标记的镜像
 
-## Repository 仓库
+## 5 Repository 仓库
 config_sample.yml 文件中，可以看到一些现成的模板段：
 - common ：基础配置
 - local ：存储数据到本地文件系统
@@ -216,7 +207,7 @@ config_sample.yml 文件中，可以看到一些现成的模板段：
 
 
 
-## Docker 中的网络功能介绍
+## 6 Docker 中的网络功能介绍
 > Docker 允许通过外部访问容器或容器互联的方式来提供网络服务。<br>
 
 
@@ -232,7 +223,7 @@ eg:
 
 > docker run -d -p 8083:8083  microservice-coupon:1.0.0 --name couponservice --ip-forward=true
 
-### 容器互联
+### 6.1 容器互联
 > 容器的连接（linking）系统是除了端口映射外，另一种跟容器中应用交互的方式。<br>
 > 连接系统依据容器的名称来执行。<br>
 > 使用 --name 标记可以为容器自定义命名。<br>
@@ -247,7 +238,7 @@ eg:
 
 
 
-### 高级网络配置
+### 6.2 高级网络配置
 
 -b BRIDGE or --bridge=BRIDGE --指定容器挂载的网桥
 --bip=CIDR --定制 docker0 的掩码
@@ -273,7 +264,7 @@ eg:
 
 
 
-## Dockerfile
+## 7 Dockerfile
 > 使用 Dockerfile 可以允许用户创建自定义的镜像。
 
 Dockerfile 分为四部分：
@@ -300,7 +291,7 @@ RUN echo "\ndaemon off;" >> /etc/nginx/nginx.conf
 CMD /usr/sbin/nginx
 ```
 
-### 指令介绍
+### 7.1 指令介绍
 #### FROM
 > 格式为 FROM \<image> 或 FROM \<image>:\<tag><br>
 > 第一条指令必须为 FROM 指令。<br>
@@ -413,7 +404,7 @@ RUN /usr/local/bin/python-build --dir /app/src
 
 
 
-## 创建镜像
+## 7.2 创建镜像
 docker build 命令
 
 > 基本的格式为 docker build [选项] 路径 ，该命令将读取指定路径下（包括子目录）的 Dockerfile，并将
@@ -429,11 +420,11 @@ docker build -t myrepo/myapp /tmp/test1/
 
 
 
-## Docker Compose
+## 8 Docker Compose
 > Docker Compose 是 Docker 官方编排（Orchestration）项目之一，负责快速在集群中部署分布式应用。
 
 
-### 安装
+### 8.1 安装
 > sudo pip install -U docker-compose
 
 查看信息：
@@ -442,14 +433,13 @@ docker build -t myrepo/myapp /tmp/test1/
 
 
 启动服务
-docker-compose up -d ---- -d表示 run in background
+docker-compose up -d ---- **<font color=red>-d表示 run in background</font>**
 
 停止服务
 docker-compose down
 
 删除未被使用的volume卷
 docker system prune -f
-
 
 
 

@@ -10,7 +10,7 @@
 ### @Controller & @RestController
 - Controller --- String,JsonObject,Html
 - RestController --- String, JsonObject
- 
+
 
 
 FilterChainProxy.java
@@ -223,7 +223,7 @@ JSON对象使用 ***BASE64URL*** 算法转换成字符串 ==> HEADER part
 也可以使用任何字段 组成JSON, 
 同样使用BASE64URL 算法进行编码
 
-3. Signature 签名部分是对 前两个部分的签名， 目的是<font color=yellow>***防止篡改***</font>
+3. Signature 签名部分是对 前两个部分的签名， 目的是<font color=#33aa9f>***防止篡改***</font>
 
 默认使用Header中的签名算法
 产生方式：HMACSHA256(

@@ -10,7 +10,9 @@
 - 
 
 
-### MyBatis 启动过程
+
+## 1 MyBatis 启动过程
+
 - 加载配置文件 mybatis-config.xml
 - 创建SqlSessionFactory对象， 这是MyBatis的核心对象，用于创建SqlSession对象
 - 工厂对象中 创建SqlSession对象， MyBatis的会话对象， 用于执行数据库操作。
@@ -19,18 +21,18 @@
 - 启动完成
 
 
-## MyBatis 中缓存设计
+## 2 MyBatis 中缓存设计
 > 缓存的作用是提高数据库的访问性能。
 > 将查询结果缓存到内存中， 下次有相同的查询请求时，直接从缓存中取出结果，避免再次访问数据库， 从而提高查询的响应速度。
 
-### 一级缓存
+### 2.1 一级缓存
 > SqlSession级别的缓存， 默认开启。
 > 同一个SqlSession执行相同的SQL, 会先从缓存中查找
 
 关闭一级缓存
 <setting name="localCacheScope" value="STATEMENT">
 
-### 二级缓存
+### 2.2 二级缓存
 > 二级缓存是Mapper级别的缓存， 默认时关闭的
 > 不同的SqlSession执行相同的SQL时，如果开启二级缓存， 会先从缓存中查找
 
@@ -56,13 +58,16 @@
 userCache="false"
 
 
-### 三级缓存
+### 2.3 三级缓存
 > 分布式的系统架构 存在缓存数据不一致的问题， 因此 将缓存放在中间件中 (eg: redis)
 MyBatis 中 Cache接口， 默认时放到内存中
 因此 重写Cache 接口 实现
 
 
-## SqlSession 的安全问题
+
+
+
+## 3 SqlSession 的安全问题
 
 Connection/
 DefaultSqlSession 都是 <font color=red><b>线程不安全</b></font>
@@ -70,18 +75,31 @@ DefaultSqlSession 都是 <font color=red><b>线程不安全</b></font>
 
 
 
-## MyBatis 中设计的设计模式
+## 4 MyBatis 中设计的设计模式
 类型分为三类
 - 创建型 --- (单例/工厂/抽象工厂/建造者/原型)
 - 结构型 --- (适配器/装饰着/代理/组合/桥接/外观/享元)
 - 行为型 --- (策略/观察者/模板方法/责任链/命令/状态/中介者)
-
 
 缓存模块 -- 装饰器模式， 
 日志模块 -- 适配器模式，策略模式，代理模式
 反射模块 -- 工厂模式， 装饰者模式
 Mapping -- 代理模式
 SqlSessionFactory -- 建造者模式
+
+
+
+
+
+## 实现多数据源？
+
+推荐使用 dynamic-datasource-spring-boot-starter：
+
+
+
+
+
+
 
 
 ## SqlSessionFactory

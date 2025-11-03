@@ -303,7 +303,12 @@ ConcurrentHashMap key,value 都不可以为null --- 提高了并发执行效率
 > ThreadLocal是弱引用<br>
 > 但是ThreadLocal的值是强引用， 而且副本释放到ThreadLocalMap中的， 因此线程使用完需要手动remove<br>
 > 线程池的情况， 线程存在复用， 所以手动remove是必须操作<br>
->
+
+
+
+ThreadLocalMap 类 --- ThreadLocal的内部静态类，实际存储结构 自定义的哈希表，仅用于维护线程本地变量
+- key为弱引用的ThreadLocal实例
+- value为强引用的实际存储值
 
 ### 不建议使用Executors来创建线程池
 内置的线程池 eg: FixedThreadExecutor coreThreadCount, maxThreadCOunt, alive 等参数都是固定的
@@ -342,9 +347,18 @@ Saga协调器
 - 使用ThreadLocal时处理不当，线程的复用 在线程池中 存活时间较长，ThreadLocal的值如果没有被remove，
 
 
-### volatile
+### volatile --- 共享资源的线程可见性 和 有序性
 工作内存 缓存区 共享副本的方式 JVM控制副本数据 与 主内存数据的同步， 保证了 资源的及时 可见
 - 可见性 --- 多线程 共享资源的可见性 
 - 有序性 --- 防止指令重排， 懒汉式 单例模式中，双重检查锁 中的 代码块可能存在指令重排
 
 
+### transient --- 关键字 transient 不会被序列化
+```java
+public class User implements Serializable {
+    private String username;
+    private transient String password;  // 不会被序列化
+    
+    // 其他代码...
+}
+```

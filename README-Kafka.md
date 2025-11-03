@@ -236,3 +236,17 @@ public class KafkaConsumer {
 > - log.retention.hours 日志保存时间 default 7days
 > - log.retention.bytes topic 每个分区的最大文件大小
 > - message.max.bytes 一个服务器接受处理的消息的最大字节数
+
+
+
+
+
+
+
+
+## 面试题
+### 消息挤压问题
+- 水平扩展   --- 增加消费者实例数量， 注意不要超过分区数
+- 消费逻辑优化  --- 同步改为异步，优化算法，较少计算量
+- 参数调整 --- max.poll.records, fetch.max.bytes 参数实现批量处理
+- 并发处理 --- 消费者内部 使用线程池 并发处理消息
