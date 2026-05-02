@@ -23,7 +23,7 @@
 - 服务限流与降级：通过配置实现流量控制和服务熔断。
 
 ### 扩展性与可观测性
-- SPI 扩展机制：基于 JDK SPI 增强，支持模块化扩展（协议、注册中心、序列化等）。
+- SPI(Service Provider Interface) 扩展机制：基于 JDK SPI 增强，支持模块化扩展（协议、注册中心、序列化等）。
 - 监控中心：集成 Prometheus、Grafana 等，提供调用链路追踪、QPS 统计、服务健康检查。
 
 
@@ -85,7 +85,7 @@ public interface UserService {
 }
 
 // 服务提供者实现
-@Service // Dubbo 的 @Service 注解
+@Service // Dubbo 的 @Service 注解, 3.0之后使用@DubboService
 public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         return new User(id, "Alice");
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
 }
 
 // 服务消费者调用
-@Reference // Dubbo 的 @Reference 注解
+@Reference // Dubbo 的 @Reference 注解, 3.0之后使用 @DubboReference
 private UserService userService;
 
 public void test() {
